@@ -76,6 +76,8 @@ fn main() {
         load_texture_from_file(&mut window, "sand_water_2.png"),
         load_texture_from_file(&mut window, "sand_water_3.png"),
         load_texture_from_file(&mut window, "sand_water_4.png"),
+        load_texture_from_file(&mut window, "palm_1.png"),
+        load_texture_from_file(&mut window, "chest_1.png"),
     ];
 
     const TILES_AMOUNT: usize = 400;
@@ -119,13 +121,14 @@ fn main() {
             continue;
         }
 
-        *tile = range.gen_range(0..4) as usize;
+        const FIRST_SAND_TILE_INDEX: usize = 0;
+        const SAND_TILES_AMOUNT: usize = 4;
+        *tile = range.gen_range(FIRST_SAND_TILE_INDEX..SAND_TILES_AMOUNT) as usize;
     }
 
     /* FIXME: to be removed, only for tests purposes */
-    tiles[380] = 4;
-    tiles[381] = 4;
-    tiles[382] = 4;
+    tiles[365] = 8;
+    tiles[366] = 9;
 
     let mut origin_horizontal_position: f64 = 0.0;
     let mut origin_vertical_position: f64 = 0.0;
@@ -170,7 +173,7 @@ fn main() {
 
         window.draw_2d(
             &event,
-            |context, window, _device| {
+            |context, window, _| {
 
                 const BACKGROUND_COLOR: &str = "88FFFF"; /* light blue */
                 clear(hex(BACKGROUND_COLOR), window);

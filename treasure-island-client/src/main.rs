@@ -15,9 +15,14 @@ use piston_window::{
     Key,
 };
 
+use piston_window::color::hex;
+
 use gui::display_tiles;
 
 use std::time;
+
+use rand::thread_rng;
+use rand::Rng;
 
 /// Refactored code to load a texture from a given image file name. Looks for files into the images resources folder.
 ///
@@ -64,7 +69,13 @@ fn main() {
 
     let all_tiles = [
         load_texture_from_file(&mut window, "sand_1.png"),
+        load_texture_from_file(&mut window, "sand_2.png"),
+        load_texture_from_file(&mut window, "sand_3.png"),
+        load_texture_from_file(&mut window, "sand_4.png"),
         load_texture_from_file(&mut window, "sand_water_1.png"),
+        load_texture_from_file(&mut window, "sand_water_2.png"),
+        load_texture_from_file(&mut window, "sand_water_3.png"),
+        load_texture_from_file(&mut window, "sand_water_4.png"),
     ];
 
     const TILES_AMOUNT: usize = 400;
@@ -74,8 +85,47 @@ fn main() {
         TILES_AMOUNT
     ];
 
+    const TILES_PER_LINE: usize = 20;
+    const LAST_LINE_FIRST_TILE_INDEX: usize = 380;
+    
+    const SAND_WATER_BOTTOM_INDEX: usize = 4;
+    const SAND_WATER_TOP_INDEX: usize = 5;
+    const SAND_WATER_LEFT_INDEX: usize = 6;
+    const SAND_WATER_RIGHT_INDEX: usize = 7;
+
+    /* FIXME: only generate random sand tiles for now,
+       should generate noise-type array with sand, trees... etc... */
+    let mut range = thread_rng();
+
+    for (index, mut tile) in tiles.iter_mut().enumerate() {
+
+        if index < TILES_PER_LINE {
+            *tile = SAND_WATER_LEFT_INDEX; 
+            continue;
+        }
+
+        if index % TILES_PER_LINE == 0 {
+            *tile = SAND_WATER_TOP_INDEX;
+            continue;
+        }
+
+        if index % TILES_PER_LINE == TILES_PER_LINE - 1 {
+            *tile = SAND_WATER_RIGHT_INDEX;
+            continue;
+        }
+
+        if index >= LAST_LINE_FIRST_TILE_INDEX {
+            *tile = SAND_WATER_BOTTOM_INDEX;
+            continue;
+        }
+
+        *tile = range.gen_range(0..4) as usize;
+    }
+
     /* FIXME: to be removed, only for tests purposes */
-    tiles[380] = 1;
+    tiles[380] = 4;
+    tiles[381] = 4;
+    tiles[382] = 4;
 
     let mut origin_horizontal_position: f64 = 0.0;
     let mut origin_vertical_position: f64 = 0.0;
@@ -123,8 +173,8 @@ fn main() {
             &event,
             |context, window, device| {
 
-                const BACKGROUND_COLOR: [f32; 4] = [0.06, 0.0, 0.1, 0.0];
-                clear(BACKGROUND_COLOR, window);
+                const BACKGROUND_COLOR: &str = "88FFFF"; /* light blue */
+                clear(hex(BACKGROUND_COLOR), window);
 
                 display_tiles(
                     window,

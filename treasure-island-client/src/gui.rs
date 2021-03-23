@@ -47,7 +47,7 @@ pub fn display_tiles(
         const TILE_HORIZONTAL_OFFSET: f64 = -75.0;
         const TILE_VERTICAL_OFFSET: f64 = -25.0;
 
-        const TILE_HORIZONTAL_DISTANCE: f64 = 70.0;
+        const TILE_HORIZONTAL_DISTANCE: f64 = 67.0;
         let tile_horizontal_position = TILE_HORIZONTAL_OFFSET -
             TILE_HORIZONTAL_DISTANCE * (column as f64) +
             TILE_HORIZONTAL_DISTANCE * (line as f64) +
@@ -60,7 +60,7 @@ pub fn display_tiles(
             continue;
         }
 
-        const TILE_VERTICAL_DISTANCE: f64 = 32.0;
+        const TILE_VERTICAL_DISTANCE: f64 = 30.0;
         let tile_vertical_position = TILE_VERTICAL_OFFSET +
             TILE_VERTICAL_DISTANCE * (column as f64) +
             TILE_VERTICAL_DISTANCE * (line as f64) +

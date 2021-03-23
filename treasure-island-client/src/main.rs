@@ -62,10 +62,9 @@ fn main() {
         .build()
         .unwrap();
 
-    /* FIXME: only contains one tile for now,
-       but it will contain all of them */
     let all_tiles = [
-        load_texture_from_file(&mut window, "sand_1.png")
+        load_texture_from_file(&mut window, "sand_1.png"),
+        load_texture_from_file(&mut window, "sand_water_1.png"),
     ];
 
     const TILES_AMOUNT: usize = 400;
@@ -74,6 +73,9 @@ fn main() {
         DEFAULT_TILE_INDEX;
         TILES_AMOUNT
     ];
+
+    /* FIXME: to be removed, only for tests purposes */
+    tiles[380] = 1;
 
     let mut origin_horizontal_position: f64 = 0.0;
     let mut origin_vertical_position: f64 = 0.0;

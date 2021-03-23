@@ -4,7 +4,6 @@ use piston_window::{
     G2d,
     G2dTexture,
     Transformed,
-    rectangle,
     image,
 };
 

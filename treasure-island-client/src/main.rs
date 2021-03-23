@@ -97,7 +97,7 @@ fn main() {
        should generate noise-type array with sand, trees... etc... */
     let mut range = thread_rng();
 
-    for (index, mut tile) in tiles.iter_mut().enumerate() {
+    for (index, tile) in tiles.iter_mut().enumerate() {
 
         if index < TILES_PER_LINE {
             *tile = SAND_WATER_LEFT_INDEX; 
@@ -131,7 +131,6 @@ fn main() {
     let mut origin_vertical_position: f64 = 0.0;
 
     let mut event_previous_time = time::Instant::now();
-    let mut animations_previous_time = time::Instant::now();
 
     while let Some(event) = window.next() {
 
@@ -171,7 +170,7 @@ fn main() {
 
         window.draw_2d(
             &event,
-            |context, window, device| {
+            |context, window, _device| {
 
                 const BACKGROUND_COLOR: &str = "88FFFF"; /* light blue */
                 clear(hex(BACKGROUND_COLOR), window);

@@ -78,6 +78,7 @@ fn main() {
         load_texture_from_file(&mut window, "sand_water_4.png"),
         load_texture_from_file(&mut window, "palm_1.png"),
         load_texture_from_file(&mut window, "chest_1.png"),
+        load_texture_from_file(&mut window, "water_1.png"),
     ];
 
     const TILES_AMOUNT: usize = 400;
@@ -126,9 +127,16 @@ fn main() {
         *tile = range.gen_range(FIRST_SAND_TILE_INDEX..SAND_TILES_AMOUNT) as usize;
     }
 
-    /* FIXME: to be removed, only for tests purposes */
-    tiles[365] = 8;
-    tiles[366] = 9;
+    /* force angles to have water */
+    const FIRST_MAP_ANGLE_INDEX: usize = 0;
+    const SECOND_MAP_ANGLE_INDEX: usize = 19;
+    const THIRD_MAP_ANGLE_INDEX: usize = 380;
+    const FOURTH_MAP_ANGLE_INDEX: usize = 399;
+    const WATER_TILE_INDEX: usize = 10;
+    tiles[FIRST_MAP_ANGLE_INDEX] = WATER_TILE_INDEX;
+    tiles[SECOND_MAP_ANGLE_INDEX] = WATER_TILE_INDEX;
+    tiles[THIRD_MAP_ANGLE_INDEX] = WATER_TILE_INDEX;
+    tiles[FOURTH_MAP_ANGLE_INDEX] = WATER_TILE_INDEX;
 
     let mut origin_horizontal_position: f64 = 0.0;
     let mut origin_vertical_position: f64 = 0.0;

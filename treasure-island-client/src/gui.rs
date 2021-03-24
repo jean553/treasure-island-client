@@ -22,7 +22,7 @@ pub fn display_tiles(
     window: &mut G2d,
     transform: &[[f64; 3]; 2],
     all_sprites: &[G2dTexture],
-    tiles: &[usize; 400],
+    tiles: &[u8; 400],
     origin_horizontal_position: f64,
     origin_vertical_position: f64,
 ) {
@@ -72,8 +72,16 @@ pub fn display_tiles(
             continue;
         }
 
+        /* tiles are all identified by a u8 number,
+           as we do not want to store arrays of usize types
+           more used to index others arrays;
+           but here, we have to retrieve the tile image
+           from the sprites array based on its index;
+           so we are required to convert it as usize only here */
+        let tile_index = *tile as usize;
+
         image(
-            &all_sprites[*tile],
+            &all_sprites[tile_index],
             transform.trans(
                 tile_horizontal_position,
                 tile_vertical_position

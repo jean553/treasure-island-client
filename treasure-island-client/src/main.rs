@@ -68,22 +68,32 @@ fn main() {
         .unwrap();
 
     let all_tiles = [
+
+        /* from 0 to 3: sands */
         load_texture_from_file(&mut window, "sand_1.png"),
         load_texture_from_file(&mut window, "sand_2.png"),
         load_texture_from_file(&mut window, "sand_3.png"),
         load_texture_from_file(&mut window, "sand_4.png"),
+
+        /* from 4 to 7: sands and water links */
         load_texture_from_file(&mut window, "sand_water_1.png"),
         load_texture_from_file(&mut window, "sand_water_2.png"),
         load_texture_from_file(&mut window, "sand_water_3.png"),
         load_texture_from_file(&mut window, "sand_water_4.png"),
+
+        /* at 8: palm tree */
         load_texture_from_file(&mut window, "palm_1.png"),
+
+        /* at 9: chest */
         load_texture_from_file(&mut window, "chest_1.png"),
+
+        /* at 10: water */
         load_texture_from_file(&mut window, "water_1.png"),
     ];
 
     const TILES_AMOUNT: usize = 400;
-    const DEFAULT_TILE_INDEX: usize = 0;
-    let mut tiles: [usize; TILES_AMOUNT] = [
+    const DEFAULT_TILE_INDEX: u8 = 0;
+    let mut tiles: [u8; TILES_AMOUNT] = [
         DEFAULT_TILE_INDEX;
         TILES_AMOUNT
     ];
@@ -91,10 +101,10 @@ fn main() {
     const TILES_PER_LINE: usize = 20;
     const LAST_LINE_FIRST_TILE_INDEX: usize = 380;
     
-    const SAND_WATER_BOTTOM_INDEX: usize = 4;
-    const SAND_WATER_TOP_INDEX: usize = 5;
-    const SAND_WATER_LEFT_INDEX: usize = 6;
-    const SAND_WATER_RIGHT_INDEX: usize = 7;
+    const SAND_WATER_BOTTOM_INDEX: u8 = 4;
+    const SAND_WATER_TOP_INDEX: u8 = 5;
+    const SAND_WATER_LEFT_INDEX: u8 = 6;
+    const SAND_WATER_RIGHT_INDEX: u8 = 7;
 
     /* FIXME: only generate random sand tiles for now,
        should generate noise-type array with sand, trees... etc... */
@@ -122,9 +132,9 @@ fn main() {
             continue;
         }
 
-        const FIRST_SAND_TILE_INDEX: usize = 0;
-        const SAND_TILES_AMOUNT: usize = 4;
-        *tile = range.gen_range(FIRST_SAND_TILE_INDEX..SAND_TILES_AMOUNT) as usize;
+        const FIRST_SAND_TILE_INDEX: u8 = 0;
+        const SAND_TILES_AMOUNT: u8 = 4;
+        *tile = range.gen_range(FIRST_SAND_TILE_INDEX..SAND_TILES_AMOUNT);
     }
 
     /* force angles to have water */
@@ -132,7 +142,7 @@ fn main() {
     const SECOND_MAP_ANGLE_INDEX: usize = 19;
     const THIRD_MAP_ANGLE_INDEX: usize = 380;
     const FOURTH_MAP_ANGLE_INDEX: usize = 399;
-    const WATER_TILE_INDEX: usize = 10;
+    const WATER_TILE_INDEX: u8 = 10;
     tiles[FIRST_MAP_ANGLE_INDEX] = WATER_TILE_INDEX;
     tiles[SECOND_MAP_ANGLE_INDEX] = WATER_TILE_INDEX;
     tiles[THIRD_MAP_ANGLE_INDEX] = WATER_TILE_INDEX;

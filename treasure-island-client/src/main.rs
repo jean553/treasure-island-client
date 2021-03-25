@@ -1,14 +1,14 @@
 extern crate piston_window;
 
 mod gui;
+mod load_texture;
+
+use gui::display_tiles;
+use load_texture::load_texture_from_file;
 
 use piston_window::{
     PistonWindow,
     WindowSettings,
-    G2dTexture,
-    Texture,
-    TextureSettings,
-    Flip,
     clear,
     PressEvent,
     Button,
@@ -17,38 +17,10 @@ use piston_window::{
 
 use piston_window::color::hex;
 
-use gui::display_tiles;
-
 use std::time;
 
 use rand::thread_rng;
 use rand::Rng;
-
-/// Refactored code to load a texture from a given image file name. Looks for files into the images resources folder.
-///
-/// # Args:
-///
-/// `window` - the window where the textures will be displayed
-/// `image` - the file of the image to load
-fn load_texture_from_file(
-    window: &mut PistonWindow,
-    file_name: &str,
-) -> G2dTexture {
-
-    const IMAGES_FOLDER: &str = "res/images/";
-    let file_path = format!(
-        "{}/{}",
-        IMAGES_FOLDER,
-        file_name,
-    );
-
-    Texture::from_path(
-        &mut window.create_texture_context(),
-        file_path,
-        Flip::None,
-        &TextureSettings::new(),
-    ).unwrap()
-}
 
 fn main() {
 

@@ -1,6 +1,6 @@
 # TreasureIsland
 
-The client.
+The client application for TreasureIsland.
 
 ## Build the project
 

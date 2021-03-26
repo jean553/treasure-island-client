@@ -20,7 +20,7 @@ Vagrant.configure(2) do |config|
 
   config.ssh.insert_key = false
   config.vm.define "dev", primary: true do |app|
-    app.vm.network "forwarded_port", guest: 9090, host: 9090
+    app.vm.network "forwarded_port", guest: 9091, host: 9091
     app.vm.provider "docker" do |d|
       d.image = "jean553/rust-dev-docker"
       d.name = "#{PROJECT}_dev"
@@ -31,5 +31,17 @@ Vagrant.configure(2) do |config|
       ]
     end
     app.ssh.username = "vagrant"
+
+    app.vm.provision "add_help", type: "shell" do |s|
+      zshrc = <<~EORUBY
+        echo "Move into the application directory:"
+        echo "  $fg[green]cd treasure-island-client/$fg[white]"
+        echo "Build the client:"
+        echo "  $fg[green]cargo build --release$fg[white]"
+        echo "Start the client:"
+        echo "  $fg[green]./target/release/treasure-island-client$fg[white]"
+      EORUBY
+      s.inline = "echo '#{zshrc}' >> /home/vagrant/.zshrc"
+    end
   end
 end

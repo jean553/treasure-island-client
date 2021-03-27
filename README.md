@@ -1,6 +1,12 @@
 # TreasureIsland
 
-The client application for TreasureIsland.
+**This is a work in progress**
+
+The client application for the multiplayers game TreasureIsland.
+
+ * Piston for graphics
+ * TCP
+ * Blender
 
 ## Build the project
 

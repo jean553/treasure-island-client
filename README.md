@@ -1,4 +1,4 @@
-# TreasureIsland
+# TreasureIsland - Client
 
 **This is a work in progress**
 

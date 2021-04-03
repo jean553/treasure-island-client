@@ -37,6 +37,7 @@ Vagrant.configure(2) do |config|
         echo "  $fg[green]cargo build --release$fg[white]"
         echo "Start the client:"
         echo "  $fg[green]./target/release/treasure-island-client$fg[white]"
+        cd #{PROJECT_DIRECTORY}
       EORUBY
       s.inline = "echo '#{zshrc}' >> /home/vagrant/.zshrc"
     end

@@ -26,7 +26,7 @@ use std::net::TcpStream;
 use std::thread::spawn;
 use std::io::{
     BufReader,
-    BufRead,
+    Read,
 };
 
 use rand::thread_rng;
@@ -41,7 +41,9 @@ use rand::Rng;
 fn receive_message_from_stream(stream: TcpStream) {
 
     let mut buffer = BufReader::new(stream);
-    let mut message = String::new();
+
+    const BUFFER_LENGTH: usize = 100;
+    let mut message: [u8; BUFFER_LENGTH] = [0; BUFFER_LENGTH];
 
     println!("Listening for messages from the server...");
 
@@ -49,14 +51,15 @@ fn receive_message_from_stream(stream: TcpStream) {
 
         /* blocking until the client receives a message from the server;
            a line break is expected at the end of the line */
-        let _ = buffer.read_line(&mut message).unwrap();
+        let _ = buffer.read(&mut message).unwrap();
 
-        /* TODO: uses strings for now, maybe we should use serialized objects */
+        /* only considers received messages if the first byte is not equal to 0 */
+        if message[0] == 0 {
+            continue;
+        }
 
         /* TODO: use mpsc channels to use message from the main thread */
-        println!("Received message: {}", message);
-
-        message.clear();
+        println!("Received message: {:?}", message);
     }
 }
 

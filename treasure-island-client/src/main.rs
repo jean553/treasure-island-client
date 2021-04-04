@@ -72,7 +72,7 @@ fn main() {
        only work with a local server for now;
        this part should be improved as the server has to be up
        for the client to start which is only a temporary solution */
-    let stream = TcpStream::connect("127.0.0.1:9500").unwrap();
+    let _stream = TcpStream::connect("127.0.0.1:9500").unwrap();
 
     const TILES_AMOUNT: usize = 400;
     const DEFAULT_TILE_VALUE: u8 = 0;

@@ -23,9 +23,42 @@ use piston_window::color::hex;
 use std::time;
 use std::collections::VecDeque;
 use std::net::TcpStream;
+use std::thread::spawn;
+use std::io::{
+    BufReader,
+    BufRead,
+};
 
 use rand::thread_rng;
 use rand::Rng;
+
+/// Contains the whole code of a dedicated thread.
+/// Continuously checks for messages coming from the server.
+///
+/// Args:
+///
+/// `stream` - the stream to listen messages from
+fn receive_message_from_stream(stream: TcpStream) {
+
+    let mut buffer = BufReader::new(stream);
+    let mut message = String::new();
+
+    println!("Listening for messages from the server...");
+
+    loop {
+
+        /* blocking until the client receives a message from the server;
+           a line break is expected at the end of the line */
+        let _ = buffer.read_line(&mut message).unwrap();
+
+        /* TODO: uses strings for now, maybe we should use serialized objects */
+
+        /* TODO: use mpsc channels to use message from the main thread */
+        println!("Received message: {}", message);
+
+        message.clear();
+    }
+}
 
 fn main() {
 
@@ -72,7 +105,11 @@ fn main() {
        only work with a local server for now;
        this part should be improved as the server has to be up
        for the client to start which is only a temporary solution */
-    let _stream = TcpStream::connect("127.0.0.1:9500").unwrap();
+    let stream = TcpStream::connect("127.0.0.1:9500").unwrap();
+
+    spawn(|| {
+        receive_message_from_stream(stream);
+    });
 
     const TILES_AMOUNT: usize = 400;
     const DEFAULT_TILE_VALUE: u8 = 0;

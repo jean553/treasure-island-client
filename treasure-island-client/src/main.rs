@@ -42,7 +42,7 @@ fn receive_message_from_stream(stream: TcpStream) {
 
     let mut buffer = BufReader::new(stream);
 
-    const BUFFER_LENGTH: usize = 100;
+    const BUFFER_LENGTH: usize = 400;
     let mut message: [u8; BUFFER_LENGTH] = [0; BUFFER_LENGTH];
 
     println!("Listening for messages from the server...");

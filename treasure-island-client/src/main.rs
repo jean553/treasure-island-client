@@ -4,10 +4,7 @@ mod gui;
 mod sprite;
 
 use gui::display_sprites;
-use sprite::{
-    load_sprite_from_file,
-    get_sprite_index_from_tile_value,
-};
+use sprite::load_sprite_from_file;
 
 use piston_window::{
     PistonWindow,
@@ -21,16 +18,16 @@ use piston_window::{
 use piston_window::color::hex;
 
 use std::time;
-use std::collections::VecDeque;
 use std::net::TcpStream;
 use std::thread::spawn;
 use std::io::{
     BufReader,
     Read,
 };
-
-use rand::thread_rng;
-use rand::Rng;
+use std::sync::{
+    Mutex,
+    Arc,
+};
 
 /// Contains the whole code of a dedicated thread.
 /// Continuously checks for messages coming from the server.
@@ -38,7 +35,11 @@ use rand::Rng;
 /// Args:
 ///
 /// `stream` - the stream to listen messages from
-fn receive_message_from_stream(stream: TcpStream) {
+/// `tiles_mutex_arc` - thread-safe pointer to the tiles array
+fn receive_message_from_stream(
+    stream: TcpStream,
+    tiles_mutex_arc: Arc<Mutex<[u8; 400]>>,
+) {
 
     let mut buffer = BufReader::new(stream);
 
@@ -57,6 +58,11 @@ fn receive_message_from_stream(stream: TcpStream) {
         if message[0] == 0 {
             continue;
         }
+
+        /* block until there is no use of the tiles mutex pointer anymore */
+        let mut tiles_mutex_guard = tiles_mutex_arc.lock().unwrap();
+        let tiles = &mut *tiles_mutex_guard;
+        tiles.copy_from_slice(&message);
 
         /* TODO: use mpsc channels to use message from the main thread */
         println!("Received message: {:?}", message);
@@ -104,6 +110,13 @@ fn main() {
         load_sprite_from_file(&mut window, "water_1.png"),
     ];
 
+    const TILES_AMOUNT: usize = 400;
+    let tiles: [u8; TILES_AMOUNT] = [0; TILES_AMOUNT];
+
+    let tiles_mutex: Mutex<[u8; TILES_AMOUNT]> = Mutex::new(tiles);
+    let tiles_mutex_arc: Arc<Mutex<[u8; TILES_AMOUNT]>> = Arc::new(tiles_mutex);
+    let tiles_mutex_arc_main_thread = tiles_mutex_arc.clone();
+
     /* FIXME: #13 the address should be the domain name of the real server,
        only work with a local server for now;
        this part should be improved as the server has to be up
@@ -111,103 +124,11 @@ fn main() {
     let stream = TcpStream::connect("127.0.0.1:9500").unwrap();
 
     spawn(|| {
-        receive_message_from_stream(stream);
+        receive_message_from_stream(
+            stream,
+            tiles_mutex_arc,
+        );
     });
-
-    const TILES_AMOUNT: usize = 400;
-    const DEFAULT_TILE_VALUE: u8 = 0;
-    let mut tiles: [u8; TILES_AMOUNT] = [
-        DEFAULT_TILE_VALUE;
-        TILES_AMOUNT
-    ];
-
-    const TILES_PER_LINE: usize = 20;
-    const LAST_LINE_FIRST_TILE_INDEX: usize = 380;
-    
-    const SAND_WATER_BOTTOM_SPRITE_INDEX: u8 = 4;
-    const SAND_WATER_TOP_SPRITE_INDEX: u8 = 5;
-    const SAND_WATER_LEFT_SPRITE_INDEX: u8 = 6;
-    const SAND_WATER_RIGHT_SPRITE_INDEX: u8 = 7;
-
-    let mut range = thread_rng();
-
-    let mut previous_tile_value: u8 = 0;
-    let mut previous_line: VecDeque<u8> = VecDeque::new();
-
-    for (index, tile) in tiles.iter_mut().enumerate() {
-
-        if index < TILES_PER_LINE {
-            *tile = SAND_WATER_LEFT_SPRITE_INDEX; 
-            continue;
-        }
-
-        if index % TILES_PER_LINE == 0 {
-            *tile = SAND_WATER_TOP_SPRITE_INDEX;
-            continue;
-        }
-
-        if index % TILES_PER_LINE == TILES_PER_LINE - 1 {
-            *tile = SAND_WATER_RIGHT_SPRITE_INDEX;
-            continue;
-        }
-
-        if index >= LAST_LINE_FIRST_TILE_INDEX {
-            *tile = SAND_WATER_BOTTOM_SPRITE_INDEX;
-            continue;
-        }
-
-        const WATER_TILE_VALUE: u8 = 0;
-        const TREE_TILE_VALUE: u8 = 3;
-
-        const FIRST_ISLAND_TILE_INDEX: usize = 21;
-        if index == FIRST_ISLAND_TILE_INDEX {
-
-            let tile_value = range.gen_range(WATER_TILE_VALUE..TREE_TILE_VALUE + 1);
-            *tile = get_sprite_index_from_tile_value(tile_value);
-
-            previous_tile_value = tile_value;
-            previous_line.push_back(tile_value);
-
-            continue;
-        }
-
-        const SECOND_LINE_OF_ISLAND_TILES_FIRST_INDEX: usize = 41;
-        if index >= SECOND_LINE_OF_ISLAND_TILES_FIRST_INDEX {
-            previous_tile_value = previous_line.pop_front().unwrap();
-        }
-
-        let mut minimum: u8 = WATER_TILE_VALUE;
-        let mut maximum: u8 = TREE_TILE_VALUE;
-
-        if previous_tile_value != WATER_TILE_VALUE {
-            minimum = previous_tile_value - 1;
-        }
-
-        if previous_tile_value != TREE_TILE_VALUE {
-            maximum = previous_tile_value + 1;
-        }
-
-        let tile_value = range.gen_range(minimum..maximum + 1);
-        *tile = get_sprite_index_from_tile_value(tile_value);
-
-        if index > FIRST_ISLAND_TILE_INDEX &&
-            index < SECOND_LINE_OF_ISLAND_TILES_FIRST_INDEX {
-            previous_tile_value = tile_value;
-        }
-
-        previous_line.push_back(tile_value);
-    }
-
-    /* force angles to have water */
-    const FIRST_MAP_ANGLE_TILE_INDEX: usize = 0;
-    const SECOND_MAP_ANGLE_TILE_INDEX: usize = 19;
-    const THIRD_MAP_ANGLE_TILE_INDEX: usize = 380;
-    const FOURTH_MAP_ANGLE_TILE_INDEX: usize = 399;
-    const WATER_TILE_SPRITE_INDEX: u8 = 10;
-    tiles[FIRST_MAP_ANGLE_TILE_INDEX] = WATER_TILE_SPRITE_INDEX;
-    tiles[SECOND_MAP_ANGLE_TILE_INDEX] = WATER_TILE_SPRITE_INDEX;
-    tiles[THIRD_MAP_ANGLE_TILE_INDEX] = WATER_TILE_SPRITE_INDEX;
-    tiles[FOURTH_MAP_ANGLE_TILE_INDEX] = WATER_TILE_SPRITE_INDEX;
 
     let mut origin_horizontal_position: f64 = 0.0;
     let mut origin_vertical_position: f64 = 0.0;
@@ -256,6 +177,9 @@ fn main() {
 
                 const BACKGROUND_COLOR: &str = "88FFFF"; /* light blue */
                 clear(hex(BACKGROUND_COLOR), window);
+
+                let tiles_mutex_guard = tiles_mutex_arc_main_thread.lock().unwrap();
+                let tiles = &*tiles_mutex_guard;
 
                 display_sprites(
                     window,

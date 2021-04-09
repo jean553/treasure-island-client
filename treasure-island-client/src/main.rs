@@ -2,9 +2,11 @@ extern crate piston_window;
 
 mod gui;
 mod sprite;
+mod character;
 
 use gui::display_sprites;
 use sprite::load_sprite_from_file;
+use character::Character;
 
 use piston_window::{
     PistonWindow,
@@ -108,6 +110,20 @@ fn main() {
 
         /* at 10: water */
         load_sprite_from_file(&mut window, "water_1.png"),
+    ];
+
+    const CHARACTERS_AMOUNT: usize = 2;
+    const FIRST_CHARACTER_DEFAULT_POSITION: usize = 19;
+    const SECOND_CHARACTER_DEFAULT_POSITION: usize = 380;
+    let all_characters: [Character; CHARACTERS_AMOUNT] = [
+        Character::new(
+            load_sprite_from_file(&mut window, "character_1.png"),
+            FIRST_CHARACTER_DEFAULT_POSITION
+        ),
+        Character::new(
+            load_sprite_from_file(&mut window, "character_1.png"),
+            SECOND_CHARACTER_DEFAULT_POSITION
+        ),
     ];
 
     const TILES_AMOUNT: usize = 400;

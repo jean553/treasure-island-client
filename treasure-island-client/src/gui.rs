@@ -1,5 +1,7 @@
 //! Handles GUI actions.
 
+use crate::character::Character;
+
 use piston_window::{
     G2d,
     G2dTexture,
@@ -90,5 +92,54 @@ pub fn display_sprites(
         );
 
         column += 1;
+    }
+}
+
+/// Display all the characters sprites.
+/// Called only once but refactored into a function for readability.
+///
+/// `window` - the window where the selector is displayed
+/// `transform` - transformation to apply on the selector when drawing
+/// `all_characters` - the list of characters
+/// `origin_horizontal_position` - the origin horizontal position
+/// `origin_vertical_position` - the origin vertical position
+pub fn display_characters(
+    window: &mut G2d,
+    transform: &[[f64; 3]; 2],
+    all_characters: &[Character; 2],
+    origin_horizontal_position: f64,
+    origin_vertical_position: f64,
+) {
+
+    for character in all_characters.iter() {
+
+        let position = character.get_position();
+
+        const TILES_PER_LINE: usize = 20;
+        let line = position / TILES_PER_LINE;
+        let column = position % TILES_PER_LINE;
+
+        const TILE_HORIZONTAL_OFFSET: f64 = -75.0;
+        const TILE_HORIZONTAL_DISTANCE: f64 = 69.0;
+        let horizontal_position = TILE_HORIZONTAL_OFFSET -
+            (column as f64) * TILE_HORIZONTAL_DISTANCE +
+            (line as f64) * TILE_HORIZONTAL_DISTANCE +
+            origin_horizontal_position;
+
+        const TILE_VERTICAL_OFFSET: f64 = -25.0;
+        const TILE_VERTICAL_DISTANCE: f64 = 31.0;
+        let vertical_position = TILE_VERTICAL_OFFSET +
+            (column as f64) * TILE_VERTICAL_DISTANCE +
+            (line as f64) * TILE_VERTICAL_DISTANCE +
+            origin_vertical_position;
+
+        image(
+            character.get_sprite(),
+            transform.trans(
+                horizontal_position,
+                vertical_position,
+            ),
+            window,
+        );
     }
 }

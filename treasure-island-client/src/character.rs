@@ -25,4 +25,14 @@ impl Character {
             position: position,
         }
     }
+
+    /// Returns the character sprite.
+    pub fn get_sprite(&self) -> &G2dTexture {
+        &self.sprite
+    }
+
+    /// Returns the character position.
+    pub fn get_position(&self) -> usize {
+        self.position
+    }
 }

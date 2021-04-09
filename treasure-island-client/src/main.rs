@@ -4,7 +4,10 @@ mod gui;
 mod sprite;
 mod character;
 
-use gui::display_sprites;
+use gui::{
+    display_sprites,
+    display_characters,
+};
 use sprite::load_sprite_from_file;
 use character::Character;
 
@@ -113,15 +116,18 @@ fn main() {
     ];
 
     const CHARACTERS_AMOUNT: usize = 2;
-    const FIRST_CHARACTER_DEFAULT_POSITION: usize = 19;
-    const SECOND_CHARACTER_DEFAULT_POSITION: usize = 380;
+
+    /* FIXME: we use fixed default positions for our characters for now;
+       that information should come from the server */
+    const FIRST_CHARACTER_DEFAULT_POSITION: usize = 5;
+    const SECOND_CHARACTER_DEFAULT_POSITION: usize = 20;
     let all_characters: [Character; CHARACTERS_AMOUNT] = [
         Character::new(
             load_sprite_from_file(&mut window, "character_1.png"),
             FIRST_CHARACTER_DEFAULT_POSITION
         ),
         Character::new(
-            load_sprite_from_file(&mut window, "character_1.png"),
+            load_sprite_from_file(&mut window, "character_2.png"),
             SECOND_CHARACTER_DEFAULT_POSITION
         ),
     ];
@@ -202,6 +208,14 @@ fn main() {
                     &context.transform,
                     &all_sprites,
                     &tiles,
+                    origin_horizontal_position,
+                    origin_vertical_position,
+                );
+
+                display_characters(
+                    window,
+                    &context.transform,
+                    &all_characters,
                     origin_horizontal_position,
                     origin_vertical_position,
                 );

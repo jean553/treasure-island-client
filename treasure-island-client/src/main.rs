@@ -3,6 +3,7 @@ extern crate piston_window;
 mod gui;
 mod sprite;
 mod character;
+mod threads;
 
 use gui::{
     display_sprites,
@@ -10,6 +11,7 @@ use gui::{
 };
 use sprite::load_sprite_from_file;
 use character::Character;
+use threads::receive_message_from_stream;
 
 use piston_window::{
     PistonWindow,
@@ -25,54 +27,10 @@ use piston_window::color::hex;
 use std::time;
 use std::net::TcpStream;
 use std::thread::spawn;
-use std::io::{
-    BufReader,
-    Read,
-};
 use std::sync::{
     Mutex,
     Arc,
 };
-
-/// Contains the whole code of a dedicated thread.
-/// Continuously checks for messages coming from the server.
-///
-/// Args:
-///
-/// `stream` - the stream to listen messages from
-/// `tiles_mutex_arc` - thread-safe pointer to the tiles array
-fn receive_message_from_stream(
-    stream: TcpStream,
-    tiles_mutex_arc: Arc<Mutex<[u8; 400]>>,
-) {
-
-    let mut buffer = BufReader::new(stream);
-
-    const BUFFER_LENGTH: usize = 400;
-    let mut message: [u8; BUFFER_LENGTH] = [0; BUFFER_LENGTH];
-
-    println!("Listening for messages from the server...");
-
-    loop {
-
-        /* blocking until the client receives a message from the server;
-           a line break is expected at the end of the line */
-        let _ = buffer.read(&mut message).unwrap();
-
-        /* only considers received messages if the first byte is not equal to 0 */
-        if message[0] == 0 {
-            continue;
-        }
-
-        /* block until there is no use of the tiles mutex pointer anymore */
-        let mut tiles_mutex_guard = tiles_mutex_arc.lock().unwrap();
-        let tiles = &mut *tiles_mutex_guard;
-        tiles.copy_from_slice(&message);
-
-        /* TODO: use mpsc channels to use message from the main thread */
-        println!("Received message: {:?}", message);
-    }
-}
 
 fn main() {
 

@@ -20,9 +20,13 @@ use piston_window::{
     PressEvent,
     Button,
     Key,
+    TextureSettings,
+    Glyphs,
+    Transformed,
 };
 
 use piston_window::color::hex;
+use piston_window::text::Text;
 
 use std::time;
 use std::net::TcpStream;
@@ -48,6 +52,13 @@ fn main() {
         .exit_on_esc(true)
         .build()
         .unwrap();
+
+    const WAITING_FOR_PLAYERS_MESSAGE_FONT_FILE_PATH: &str = "res/fonts/pirates-writers.ttf";
+    let mut waiting_for_players_message_font = Glyphs::new(
+        WAITING_FOR_PLAYERS_MESSAGE_FONT_FILE_PATH,
+        window.create_texture_context(),
+        TextureSettings::new(),
+    ).unwrap();
 
     let all_sprites = [
 
@@ -159,7 +170,7 @@ fn main() {
 
         window.draw_2d(
             &event,
-            |context, window, _| {
+            |context, window, device| {
 
                 const BACKGROUND_COLOR: &str = "88FFFF"; /* light blue */
                 clear(hex(BACKGROUND_COLOR), window);
@@ -168,6 +179,30 @@ fn main() {
                 let waiting_for_players = &*waiting_for_players_mutex_guard;
 
                 if *waiting_for_players {
+
+                    const WHITE_COLOR: [f32; 4] = [1.0, 1.0, 1.0, 1.0];
+                    const WAITING_FOR_PLAYERS_MESSAGE_FONT_SIZE: u32 = 64;
+                    const WAITING_FOR_PLAYERS_MESSAGE_HORIZONTAL_POSITION: f64 = 635.0;
+                    const WAITING_FOR_PLAYERS_MESSAGE_VERTICAL_POSITION: f64 = 500.0;
+                    const WAITING_FOR_PLAYERS_MESSAGE: &str = "Waiting for players...";
+                    Text::new_color(
+                        WHITE_COLOR,
+                        WAITING_FOR_PLAYERS_MESSAGE_FONT_SIZE,
+                    ).draw(
+                        WAITING_FOR_PLAYERS_MESSAGE,
+                        &mut waiting_for_players_message_font,
+                        &context.draw_state,
+                        context.transform.trans(
+                            WAITING_FOR_PLAYERS_MESSAGE_HORIZONTAL_POSITION,
+                            WAITING_FOR_PLAYERS_MESSAGE_VERTICAL_POSITION,
+                        ),
+                        window
+                    ).unwrap();
+
+                    waiting_for_players_message_font.factory
+                        .encoder
+                        .flush(device);
+
                     return;
                 }
 

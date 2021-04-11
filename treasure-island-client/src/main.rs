@@ -97,6 +97,11 @@ fn main() {
     let tiles_mutex_arc: Arc<Mutex<[u8; TILES_AMOUNT]>> = Arc::new(tiles_mutex);
     let tiles_mutex_arc_main_thread = tiles_mutex_arc.clone();
 
+    let waiting_for_players: bool = true;
+    let waiting_for_players_mutex: Mutex<bool> = Mutex::new(waiting_for_players);
+    let waiting_for_players_mutex_arc: Arc<Mutex<bool>> = Arc::new(waiting_for_players_mutex);
+    let waiting_for_players_mutex_arc_main_thread = waiting_for_players_mutex_arc.clone();
+
     /* FIXME: #13 the address should be the domain name of the real server,
        only work with a local server for now;
        this part should be improved as the server has to be up
@@ -107,6 +112,7 @@ fn main() {
         receive_message_from_stream(
             stream,
             tiles_mutex_arc,
+            waiting_for_players_mutex_arc,
         );
     });
 
@@ -157,6 +163,13 @@ fn main() {
 
                 const BACKGROUND_COLOR: &str = "88FFFF"; /* light blue */
                 clear(hex(BACKGROUND_COLOR), window);
+
+                let waiting_for_players_mutex_guard = waiting_for_players_mutex_arc_main_thread.lock().unwrap();
+                let waiting_for_players = &*waiting_for_players_mutex_guard;
+
+                if *waiting_for_players {
+                    return;
+                }
 
                 let tiles_mutex_guard = tiles_mutex_arc_main_thread.lock().unwrap();
                 let tiles = &*tiles_mutex_guard;

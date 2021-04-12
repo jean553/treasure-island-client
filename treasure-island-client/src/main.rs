@@ -88,8 +88,8 @@ fn main() {
 
     /* FIXME: we use fixed default positions for our characters for now;
        that information should come from the server */
-    const FIRST_CHARACTER_DEFAULT_POSITION: usize = 5;
-    const SECOND_CHARACTER_DEFAULT_POSITION: usize = 20;
+    const FIRST_CHARACTER_DEFAULT_POSITION: usize = 38;
+    const SECOND_CHARACTER_DEFAULT_POSITION: usize = 361;
     let all_characters: [Character; CHARACTERS_AMOUNT] = [
         Character::new(
             load_sprite_from_file(&mut window, "character_1.png"),

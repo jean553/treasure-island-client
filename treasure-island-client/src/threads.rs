@@ -1,5 +1,7 @@
 //! Contains individual threads dedicated codes.
 
+use crate::screen::Screen;
+
 use std::net::TcpStream;
 use std::sync::{
     Mutex,
@@ -17,11 +19,11 @@ use std::io::{
 ///
 /// `stream` - the stream to listen messages from
 /// `tiles_mutex_arc` - thread-safe pointer to the tiles array
-/// `waiting_for_players_mutex_arc` - thread-safe pointer on boolean to be triggered when enough users have joined the game
+/// `current_screen_mutex_arc` - thread-safe pointer on the currently displayed screen
 pub fn receive_message_from_stream(
     stream: TcpStream,
     tiles_mutex_arc: Arc<Mutex<[u8; 400]>>,
-    waiting_for_players_mutex_arc: Arc<Mutex<bool>>,
+    current_screen_mutex_arc: Arc<Mutex<Screen>>,
 ) {
 
     let mut buffer = BufReader::new(stream);
@@ -55,9 +57,9 @@ pub fn receive_message_from_stream(
             continue;
         }
 
-        let mut waiting_for_players_mutex_guard = waiting_for_players_mutex_arc.lock().unwrap();
-        let waiting_for_players = &mut *waiting_for_players_mutex_guard;
-        *waiting_for_players = false;
+        let mut current_screen_mutex_guard = current_screen_mutex_arc.lock().unwrap();
+        let current_screen = &mut *current_screen_mutex_guard;
+        *current_screen = Screen::Game;
     }
 }
 

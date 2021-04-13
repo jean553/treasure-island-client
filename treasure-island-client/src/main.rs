@@ -4,6 +4,7 @@ mod gui;
 mod sprite;
 mod character;
 mod threads;
+mod screen;
 
 use gui::{
     display_sprites,
@@ -12,6 +13,7 @@ use gui::{
 use sprite::load_sprite_from_file;
 use character::Character;
 use threads::receive_message_from_stream;
+use screen::Screen;
 
 use piston_window::{
     PistonWindow,
@@ -108,10 +110,10 @@ fn main() {
     let tiles_mutex_arc: Arc<Mutex<[u8; TILES_AMOUNT]>> = Arc::new(tiles_mutex);
     let tiles_mutex_arc_main_thread = tiles_mutex_arc.clone();
 
-    let waiting_for_players: bool = true;
-    let waiting_for_players_mutex: Mutex<bool> = Mutex::new(waiting_for_players);
-    let waiting_for_players_mutex_arc: Arc<Mutex<bool>> = Arc::new(waiting_for_players_mutex);
-    let waiting_for_players_mutex_arc_main_thread = waiting_for_players_mutex_arc.clone();
+    let current_screen: Screen = Screen::WaitingForPlayers;
+    let current_screen_mutex: Mutex<Screen> = Mutex::new(current_screen);
+    let current_screen_mutex_arc: Arc<Mutex<Screen>> = Arc::new(current_screen_mutex);
+    let current_screen_mutex_arc_main_thread = current_screen_mutex_arc.clone();
 
     /* FIXME: #13 the address should be the domain name of the real server,
        only work with a local server for now;
@@ -123,7 +125,7 @@ fn main() {
         receive_message_from_stream(
             stream,
             tiles_mutex_arc,
-            waiting_for_players_mutex_arc,
+            current_screen_mutex_arc,
         );
     });
 
@@ -175,10 +177,10 @@ fn main() {
                 const BACKGROUND_COLOR: &str = "88FFFF"; /* light blue */
                 clear(hex(BACKGROUND_COLOR), window);
 
-                let waiting_for_players_mutex_guard = waiting_for_players_mutex_arc_main_thread.lock().unwrap();
-                let waiting_for_players = &*waiting_for_players_mutex_guard;
+                let current_screen_mutex_guard = current_screen_mutex_arc_main_thread.lock().unwrap();
+                let current_screen = &*current_screen_mutex_guard;
 
-                if *waiting_for_players {
+                if *current_screen == Screen::WaitingForPlayers {
 
                     const WHITE_COLOR: [f32; 4] = [1.0, 1.0, 1.0, 1.0];
                     const WAITING_FOR_PLAYERS_MESSAGE_FONT_SIZE: u32 = 64;

@@ -110,7 +110,7 @@ fn main() {
     let tiles_mutex_arc: Arc<Mutex<[u8; TILES_AMOUNT]>> = Arc::new(tiles_mutex);
     let tiles_mutex_arc_main_thread = tiles_mutex_arc.clone();
 
-    let current_screen: Screen = Screen::WaitingForPlayers;
+    let current_screen: Screen = Screen::UsernamePrompt;
     let current_screen_mutex: Mutex<Screen> = Mutex::new(current_screen);
     let current_screen_mutex_arc: Arc<Mutex<Screen>> = Arc::new(current_screen_mutex);
     let current_screen_mutex_arc_main_thread = current_screen_mutex_arc.clone();
@@ -133,6 +133,8 @@ fn main() {
     let mut origin_vertical_position: f64 = 0.0;
 
     let mut event_previous_time = time::Instant::now();
+
+    let mut username: String = String::new();
 
     while let Some(event) = window.next() {
 
@@ -170,6 +172,14 @@ fn main() {
             }
         }
 
+        /* implement all keyboard letters/numbers keys */
+
+        else if let Some(Button::Keyboard(Key::A)) = pressed_key {
+
+            const CHARACTER: &str = "A";
+            username.push_str(CHARACTER);
+        }
+
         window.draw_2d(
             &event,
             |context, window, device| {
@@ -178,9 +188,56 @@ fn main() {
                 clear(hex(BACKGROUND_COLOR), window);
 
                 let current_screen_mutex_guard = current_screen_mutex_arc_main_thread.lock().unwrap();
-                let current_screen = &*current_screen_mutex_guard;
+                let current_screen_guard = &*current_screen_mutex_guard;
+                let current_screen = *current_screen_guard;
 
-                if *current_screen == Screen::WaitingForPlayers {
+                if current_screen == Screen::UsernamePrompt {
+
+                    const WHITE_COLOR: [f32; 4] = [1.0, 1.0, 1.0, 1.0];
+
+                    const CHOOSE_YOUR_USERNAME_MESSAGE_FONT_SIZE: u32 = 64;
+                    const CHOOSE_YOUR_USERNAME_MESSAGE_HORIZONTAL_POSITION: f64 = 635.0;
+                    const CHOOSE_YOUR_USERNAME_MESSAGE_VERTICAL_POSITION: f64 = 500.0;
+                    const CHOOSE_YOUR_USERNAME_MESSAGE: &str = "Choose your username:";
+                    Text::new_color(
+                        WHITE_COLOR,
+                        CHOOSE_YOUR_USERNAME_MESSAGE_FONT_SIZE,
+                    ).draw(
+                        CHOOSE_YOUR_USERNAME_MESSAGE,
+                        &mut waiting_for_players_message_font,
+                        &context.draw_state,
+                        context.transform.trans(
+                            CHOOSE_YOUR_USERNAME_MESSAGE_HORIZONTAL_POSITION,
+                            CHOOSE_YOUR_USERNAME_MESSAGE_VERTICAL_POSITION,
+                        ),
+                        window
+                    ).unwrap();
+
+                    const USERNAME_MESSAGE_FONT_SIZE: u32 = 64;
+                    const USERNAME_MESSAGE_HORIZONTAL_POSITION: f64 = 635.0;
+                    const USERNAME_MESSAGE_VERTICAL_POSITION: f64 = 600.0;
+                    Text::new_color(
+                        WHITE_COLOR,
+                        USERNAME_MESSAGE_FONT_SIZE,
+                    ).draw(
+                        &username,
+                        &mut waiting_for_players_message_font,
+                        &context.draw_state,
+                        context.transform.trans(
+                            USERNAME_MESSAGE_HORIZONTAL_POSITION,
+                            USERNAME_MESSAGE_VERTICAL_POSITION,
+                        ),
+                        window
+                    ).unwrap();
+
+                    waiting_for_players_message_font.factory
+                        .encoder
+                        .flush(device);
+
+                    return;
+                }
+
+                if current_screen == Screen::WaitingForPlayers {
 
                     const WHITE_COLOR: [f32; 4] = [1.0, 1.0, 1.0, 1.0];
                     const WAITING_FOR_PLAYERS_MESSAGE_FONT_SIZE: u32 = 64;

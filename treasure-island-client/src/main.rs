@@ -175,8 +175,99 @@ fn main() {
         /* implement all keyboard letters/numbers keys */
 
         else if let Some(Button::Keyboard(Key::A)) = pressed_key {
-
             const CHARACTER: &str = "A";
+            username.push_str(CHARACTER);
+        }
+        else if let Some(Button::Keyboard(Key::B)) = pressed_key {
+            const CHARACTER: &str = "B";
+            username.push_str(CHARACTER);
+        }
+        else if let Some(Button::Keyboard(Key::C)) = pressed_key {
+            const CHARACTER: &str = "C";
+            username.push_str(CHARACTER);
+        }
+        else if let Some(Button::Keyboard(Key::D)) = pressed_key {
+            const CHARACTER: &str = "D";
+            username.push_str(CHARACTER);
+        }
+        else if let Some(Button::Keyboard(Key::E)) = pressed_key {
+            const CHARACTER: &str = "E";
+            username.push_str(CHARACTER);
+        }
+        else if let Some(Button::Keyboard(Key::F)) = pressed_key {
+            const CHARACTER: &str = "F";
+            username.push_str(CHARACTER);
+        }
+        else if let Some(Button::Keyboard(Key::G)) = pressed_key {
+            const CHARACTER: &str = "G";
+            username.push_str(CHARACTER);
+        }
+        else if let Some(Button::Keyboard(Key::H)) = pressed_key {
+            const CHARACTER: &str = "H";
+            username.push_str(CHARACTER);
+        }
+        else if let Some(Button::Keyboard(Key::I)) = pressed_key {
+            const CHARACTER: &str = "I";
+            username.push_str(CHARACTER);
+        }
+        else if let Some(Button::Keyboard(Key::J)) = pressed_key {
+            const CHARACTER: &str = "J";
+            username.push_str(CHARACTER);
+        }
+        else if let Some(Button::Keyboard(Key::K)) = pressed_key {
+            const CHARACTER: &str = "K";
+            username.push_str(CHARACTER);
+        }
+        else if let Some(Button::Keyboard(Key::L)) = pressed_key {
+            const CHARACTER: &str = "L";
+            username.push_str(CHARACTER);
+        }
+        else if let Some(Button::Keyboard(Key::M)) = pressed_key {
+            const CHARACTER: &str = "M";
+            username.push_str(CHARACTER);
+        }
+        else if let Some(Button::Keyboard(Key::N)) = pressed_key {
+            const CHARACTER: &str = "N";
+            username.push_str(CHARACTER);
+        }
+        else if let Some(Button::Keyboard(Key::O)) = pressed_key {
+            const CHARACTER: &str = "O";
+            username.push_str(CHARACTER);
+        }
+        else if let Some(Button::Keyboard(Key::P)) = pressed_key {
+            const CHARACTER: &str = "P";
+            username.push_str(CHARACTER);
+        }
+        else if let Some(Button::Keyboard(Key::Q)) = pressed_key {
+            const CHARACTER: &str = "Q";
+            username.push_str(CHARACTER);
+        }
+        else if let Some(Button::Keyboard(Key::R)) = pressed_key {
+            const CHARACTER: &str = "R";
+            username.push_str(CHARACTER);
+        }
+        else if let Some(Button::Keyboard(Key::S)) = pressed_key {
+            const CHARACTER: &str = "S";
+            username.push_str(CHARACTER);
+        }
+        else if let Some(Button::Keyboard(Key::T)) = pressed_key {
+            const CHARACTER: &str = "T";
+            username.push_str(CHARACTER);
+        }
+        else if let Some(Button::Keyboard(Key::W)) = pressed_key {
+            const CHARACTER: &str = "W";
+            username.push_str(CHARACTER);
+        }
+        else if let Some(Button::Keyboard(Key::X)) = pressed_key {
+            const CHARACTER: &str = "X";
+            username.push_str(CHARACTER);
+        }
+        else if let Some(Button::Keyboard(Key::Y)) = pressed_key {
+            const CHARACTER: &str = "Y";
+            username.push_str(CHARACTER);
+        }
+        else if let Some(Button::Keyboard(Key::Z)) = pressed_key {
+            const CHARACTER: &str = "Z";
             username.push_str(CHARACTER);
         }
 

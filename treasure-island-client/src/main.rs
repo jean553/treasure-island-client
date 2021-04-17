@@ -1,10 +1,13 @@
 extern crate piston_window;
+extern crate gfx_device_gl;
 
 mod gui;
 mod sprite;
 mod character;
 mod threads;
 mod screen;
+
+mod username_prompt_screen;
 
 use gui::{
     display_sprites,
@@ -14,6 +17,8 @@ use sprite::load_sprite_from_file;
 use character::Character;
 use threads::receive_message_from_stream;
 use screen::Screen;
+
+use username_prompt_screen::UsernamePromptScreen;
 
 use piston_window::{
     PistonWindow,
@@ -56,7 +61,7 @@ fn main() {
         .unwrap();
 
     const WAITING_FOR_PLAYERS_MESSAGE_FONT_FILE_PATH: &str = "res/fonts/pirates-writers.ttf";
-    let mut waiting_for_players_message_font = Glyphs::new(
+    let mut font = Glyphs::new(
         WAITING_FOR_PLAYERS_MESSAGE_FONT_FILE_PATH,
         window.create_texture_context(),
         TextureSettings::new(),
@@ -134,141 +139,49 @@ fn main() {
 
     let mut event_previous_time = time::Instant::now();
 
-    let mut username: String = String::new();
+    let mut username_prompt_screen = UsernamePromptScreen::new();
 
     while let Some(event) = window.next() {
 
-        let pressed_key = event.press_args();
-
-        const CAMERA_MOVEMENT_OFFSET: f64 = 10.0;
-        const CAMERA_MOVEMENT_INTERVAL: u128 = 25;
-
-        if let Some(Button::Keyboard(Key::Up)) = pressed_key {
-            if time::Instant::now().duration_since(event_previous_time).as_millis() >
-                CAMERA_MOVEMENT_INTERVAL {
-                origin_vertical_position += CAMERA_MOVEMENT_OFFSET;
-                event_previous_time = time::Instant::now();
-            }
-        }
-        else if let Some(Button::Keyboard(Key::Down)) = pressed_key {
-            if time::Instant::now().duration_since(event_previous_time).as_millis() >
-                CAMERA_MOVEMENT_INTERVAL {
-                origin_vertical_position -= CAMERA_MOVEMENT_OFFSET;
-                event_previous_time = time::Instant::now();
-            }
-        }
-        else if let Some(Button::Keyboard(Key::Left)) = pressed_key {
-            if time::Instant::now().duration_since(event_previous_time).as_millis() >
-                CAMERA_MOVEMENT_INTERVAL {
-                origin_horizontal_position += CAMERA_MOVEMENT_OFFSET;
-                event_previous_time = time::Instant::now();
-            }
-        }
-        else if let Some(Button::Keyboard(Key::Right)) = pressed_key {
-            if time::Instant::now().duration_since(event_previous_time).as_millis() >
-                CAMERA_MOVEMENT_INTERVAL {
-                origin_horizontal_position -= CAMERA_MOVEMENT_OFFSET;
-                event_previous_time = time::Instant::now();
-            }
+        if current_screen == Screen::UsernamePrompt {
+            username_prompt_screen.handle_events(&event);
         }
 
-        /* implement all keyboard letters/numbers keys */
+        else if current_screen == Screen::Game {
 
-        else if let Some(Button::Keyboard(Key::A)) = pressed_key {
-            const CHARACTER: &str = "A";
-            username.push_str(CHARACTER);
-        }
-        else if let Some(Button::Keyboard(Key::B)) = pressed_key {
-            const CHARACTER: &str = "B";
-            username.push_str(CHARACTER);
-        }
-        else if let Some(Button::Keyboard(Key::C)) = pressed_key {
-            const CHARACTER: &str = "C";
-            username.push_str(CHARACTER);
-        }
-        else if let Some(Button::Keyboard(Key::D)) = pressed_key {
-            const CHARACTER: &str = "D";
-            username.push_str(CHARACTER);
-        }
-        else if let Some(Button::Keyboard(Key::E)) = pressed_key {
-            const CHARACTER: &str = "E";
-            username.push_str(CHARACTER);
-        }
-        else if let Some(Button::Keyboard(Key::F)) = pressed_key {
-            const CHARACTER: &str = "F";
-            username.push_str(CHARACTER);
-        }
-        else if let Some(Button::Keyboard(Key::G)) = pressed_key {
-            const CHARACTER: &str = "G";
-            username.push_str(CHARACTER);
-        }
-        else if let Some(Button::Keyboard(Key::H)) = pressed_key {
-            const CHARACTER: &str = "H";
-            username.push_str(CHARACTER);
-        }
-        else if let Some(Button::Keyboard(Key::I)) = pressed_key {
-            const CHARACTER: &str = "I";
-            username.push_str(CHARACTER);
-        }
-        else if let Some(Button::Keyboard(Key::J)) = pressed_key {
-            const CHARACTER: &str = "J";
-            username.push_str(CHARACTER);
-        }
-        else if let Some(Button::Keyboard(Key::K)) = pressed_key {
-            const CHARACTER: &str = "K";
-            username.push_str(CHARACTER);
-        }
-        else if let Some(Button::Keyboard(Key::L)) = pressed_key {
-            const CHARACTER: &str = "L";
-            username.push_str(CHARACTER);
-        }
-        else if let Some(Button::Keyboard(Key::M)) = pressed_key {
-            const CHARACTER: &str = "M";
-            username.push_str(CHARACTER);
-        }
-        else if let Some(Button::Keyboard(Key::N)) = pressed_key {
-            const CHARACTER: &str = "N";
-            username.push_str(CHARACTER);
-        }
-        else if let Some(Button::Keyboard(Key::O)) = pressed_key {
-            const CHARACTER: &str = "O";
-            username.push_str(CHARACTER);
-        }
-        else if let Some(Button::Keyboard(Key::P)) = pressed_key {
-            const CHARACTER: &str = "P";
-            username.push_str(CHARACTER);
-        }
-        else if let Some(Button::Keyboard(Key::Q)) = pressed_key {
-            const CHARACTER: &str = "Q";
-            username.push_str(CHARACTER);
-        }
-        else if let Some(Button::Keyboard(Key::R)) = pressed_key {
-            const CHARACTER: &str = "R";
-            username.push_str(CHARACTER);
-        }
-        else if let Some(Button::Keyboard(Key::S)) = pressed_key {
-            const CHARACTER: &str = "S";
-            username.push_str(CHARACTER);
-        }
-        else if let Some(Button::Keyboard(Key::T)) = pressed_key {
-            const CHARACTER: &str = "T";
-            username.push_str(CHARACTER);
-        }
-        else if let Some(Button::Keyboard(Key::W)) = pressed_key {
-            const CHARACTER: &str = "W";
-            username.push_str(CHARACTER);
-        }
-        else if let Some(Button::Keyboard(Key::X)) = pressed_key {
-            const CHARACTER: &str = "X";
-            username.push_str(CHARACTER);
-        }
-        else if let Some(Button::Keyboard(Key::Y)) = pressed_key {
-            const CHARACTER: &str = "Y";
-            username.push_str(CHARACTER);
-        }
-        else if let Some(Button::Keyboard(Key::Z)) = pressed_key {
-            const CHARACTER: &str = "Z";
-            username.push_str(CHARACTER);
+            let pressed_key = event.press_args();
+
+            const CAMERA_MOVEMENT_OFFSET: f64 = 10.0;
+            const CAMERA_MOVEMENT_INTERVAL: u128 = 25;
+
+            if let Some(Button::Keyboard(Key::Up)) = pressed_key {
+                if time::Instant::now().duration_since(event_previous_time).as_millis() >
+                    CAMERA_MOVEMENT_INTERVAL {
+                        origin_vertical_position += CAMERA_MOVEMENT_OFFSET;
+                        event_previous_time = time::Instant::now();
+                    }
+            }
+            else if let Some(Button::Keyboard(Key::Down)) = pressed_key {
+                if time::Instant::now().duration_since(event_previous_time).as_millis() >
+                    CAMERA_MOVEMENT_INTERVAL {
+                        origin_vertical_position -= CAMERA_MOVEMENT_OFFSET;
+                        event_previous_time = time::Instant::now();
+                    }
+            }
+            else if let Some(Button::Keyboard(Key::Left)) = pressed_key {
+                if time::Instant::now().duration_since(event_previous_time).as_millis() >
+                    CAMERA_MOVEMENT_INTERVAL {
+                        origin_horizontal_position += CAMERA_MOVEMENT_OFFSET;
+                        event_previous_time = time::Instant::now();
+                    }
+            }
+            else if let Some(Button::Keyboard(Key::Right)) = pressed_key {
+                if time::Instant::now().duration_since(event_previous_time).as_millis() >
+                    CAMERA_MOVEMENT_INTERVAL {
+                        origin_horizontal_position -= CAMERA_MOVEMENT_OFFSET;
+                        event_previous_time = time::Instant::now();
+                    }
+            }
         }
 
         window.draw_2d(
@@ -284,46 +197,12 @@ fn main() {
 
                 if current_screen == Screen::UsernamePrompt {
 
-                    const WHITE_COLOR: [f32; 4] = [1.0, 1.0, 1.0, 1.0];
-
-                    const CHOOSE_YOUR_USERNAME_MESSAGE_FONT_SIZE: u32 = 64;
-                    const CHOOSE_YOUR_USERNAME_MESSAGE_HORIZONTAL_POSITION: f64 = 635.0;
-                    const CHOOSE_YOUR_USERNAME_MESSAGE_VERTICAL_POSITION: f64 = 500.0;
-                    const CHOOSE_YOUR_USERNAME_MESSAGE: &str = "Choose your username:";
-                    Text::new_color(
-                        WHITE_COLOR,
-                        CHOOSE_YOUR_USERNAME_MESSAGE_FONT_SIZE,
-                    ).draw(
-                        CHOOSE_YOUR_USERNAME_MESSAGE,
-                        &mut waiting_for_players_message_font,
-                        &context.draw_state,
-                        context.transform.trans(
-                            CHOOSE_YOUR_USERNAME_MESSAGE_HORIZONTAL_POSITION,
-                            CHOOSE_YOUR_USERNAME_MESSAGE_VERTICAL_POSITION,
-                        ),
-                        window
-                    ).unwrap();
-
-                    const USERNAME_MESSAGE_FONT_SIZE: u32 = 64;
-                    const USERNAME_MESSAGE_HORIZONTAL_POSITION: f64 = 635.0;
-                    const USERNAME_MESSAGE_VERTICAL_POSITION: f64 = 600.0;
-                    Text::new_color(
-                        WHITE_COLOR,
-                        USERNAME_MESSAGE_FONT_SIZE,
-                    ).draw(
-                        &username,
-                        &mut waiting_for_players_message_font,
-                        &context.draw_state,
-                        context.transform.trans(
-                            USERNAME_MESSAGE_HORIZONTAL_POSITION,
-                            USERNAME_MESSAGE_VERTICAL_POSITION,
-                        ),
-                        window
-                    ).unwrap();
-
-                    waiting_for_players_message_font.factory
-                        .encoder
-                        .flush(device);
+                    username_prompt_screen.render(
+                        context,
+                        window,
+                        device,
+                        &mut font,
+                    );
 
                     return;
                 }
@@ -340,7 +219,7 @@ fn main() {
                         WAITING_FOR_PLAYERS_MESSAGE_FONT_SIZE,
                     ).draw(
                         WAITING_FOR_PLAYERS_MESSAGE,
-                        &mut waiting_for_players_message_font,
+                        &mut font,
                         &context.draw_state,
                         context.transform.trans(
                             WAITING_FOR_PLAYERS_MESSAGE_HORIZONTAL_POSITION,
@@ -349,7 +228,7 @@ fn main() {
                         window
                     ).unwrap();
 
-                    waiting_for_players_message_font.factory
+                    font.factory
                         .encoder
                         .flush(device);
 

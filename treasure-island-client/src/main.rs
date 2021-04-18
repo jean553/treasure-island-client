@@ -9,6 +9,7 @@ mod screen;
 
 mod username_prompt_screen;
 mod waiting_for_players_screen;
+mod game_screen;
 
 use gui::{
     display_sprites,
@@ -21,6 +22,7 @@ use screen::Screen;
 
 use username_prompt_screen::UsernamePromptScreen;
 use waiting_for_players_screen::WaitingForPlayersScreen;
+use game_screen::GameScreen;
 
 use piston_window::{
     PistonWindow,
@@ -141,6 +143,7 @@ fn main() {
 
     let mut username_prompt_screen = UsernamePromptScreen::new();
     let waiting_for_players_screen = WaitingForPlayersScreen::new();
+    let game_screen = GameScreen::new();
 
     while let Some(event) = window.next() {
 

@@ -43,6 +43,7 @@ impl GameScreen {
     ///
     /// # Args:
     ///
+    /// `window` - the Piston window to use
     /// `tiles` - thread safe pointer to the tiles (shared with the thread that receives updated tiles map from the server)
     pub fn new(window: &mut PistonWindow, tiles: Tiles) -> GameScreen {
 

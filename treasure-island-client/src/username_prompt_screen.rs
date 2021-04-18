@@ -1,3 +1,5 @@
+use crate::screen::Screen;
+
 use piston_window::text::Text;
 use piston_window::{
     Glyphs,
@@ -12,18 +14,31 @@ use piston_window::{
 
 use gfx_device_gl::Device;
 
+use std::sync::{
+    Mutex,
+    Arc,
+};
+
+type CurrentScreen = Arc<Mutex<Screen>>;
+
 pub struct UsernamePromptScreen {
     username: String,
+    current_screen: CurrentScreen,
 }
 
 impl UsernamePromptScreen {
 
     /// Constructor.
-    pub fn new() -> UsernamePromptScreen {
+    ///
+    /// # Args:
+    ///
+    /// `current_screen` - thread safe pointer to the current displayed screen in order to change it on event
+    pub fn new(current_screen: CurrentScreen) -> UsernamePromptScreen {
 
         const DEFAULT_USERNAME: &str = "";
         UsernamePromptScreen {
-            username: DEFAULT_USERNAME.to_string()
+            username: DEFAULT_USERNAME.to_string(),
+            current_screen: current_screen,
         }
     }
 
@@ -97,7 +112,16 @@ impl UsernamePromptScreen {
 
         let pressed_key = event.press_args();
 
-        if let Some(Button::Keyboard(Key::A)) = pressed_key {
+        if let Some(Button::Keyboard(Key::Return)) = pressed_key {
+
+            let mut current_screen_mutex_guard = self.current_screen.lock().unwrap();
+            let current_screen_guard = &mut *current_screen_mutex_guard;
+            *current_screen_guard = Screen::WaitingForPlayers;
+        }
+
+        /* handle all letters */
+
+        else if let Some(Button::Keyboard(Key::A)) = pressed_key {
             const CHARACTER: &str = "A";
             self.username.push_str(CHARACTER);
         }

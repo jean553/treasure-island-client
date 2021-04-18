@@ -37,6 +37,9 @@ use std::sync::{
 
 fn main() {
 
+
+    /* load global resources used everywhere (window, fonts) */
+
     const WINDOW_WIDTH: f64 = 1920.0;
     const WINDOW_HEIGHT: f64 = 1080.0;
 
@@ -59,6 +62,10 @@ fn main() {
         TextureSettings::new(),
     ).unwrap();
 
+
+    /* load cross-threads resources with their pointers and mutexes
+       (current screen, map) */
+
     const TILES_AMOUNT: usize = 400;
     let tiles: [u8; TILES_AMOUNT] = [0; TILES_AMOUNT];
 
@@ -67,6 +74,7 @@ fn main() {
     let tiles_mutex_arc_main_thread = tiles_mutex_arc.clone();
 
     let current_screen: Screen = Screen::UsernamePrompt;
+
     let current_screen_mutex: Mutex<Screen> = Mutex::new(current_screen);
     let current_screen_mutex_arc: Arc<Mutex<Screen>> = Arc::new(current_screen_mutex);
     let current_screen_mutex_arc_main_thread = current_screen_mutex_arc.clone();
@@ -85,7 +93,10 @@ fn main() {
         );
     });
 
-    let mut username_prompt_screen = UsernamePromptScreen::new();
+
+    /* load all the screens */
+
+    let mut username_prompt_screen = UsernamePromptScreen::new(current_screen_mutex_arc_main_thread.clone());
     let waiting_for_players_screen = WaitingForPlayersScreen::new();
     let mut game_screen = GameScreen::new(&mut window, tiles_mutex_arc_main_thread);
 

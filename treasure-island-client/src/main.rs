@@ -68,16 +68,12 @@ fn main() {
 
     const TILES_AMOUNT: usize = 400;
     let tiles: [u8; TILES_AMOUNT] = [0; TILES_AMOUNT];
-
     let tiles_mutex: Mutex<[u8; TILES_AMOUNT]> = Mutex::new(tiles);
     let tiles_mutex_arc: Arc<Mutex<[u8; TILES_AMOUNT]>> = Arc::new(tiles_mutex);
-    let tiles_mutex_arc_main_thread = tiles_mutex_arc.clone();
 
     let current_screen: Screen = Screen::UsernamePrompt;
-
     let current_screen_mutex: Mutex<Screen> = Mutex::new(current_screen);
     let current_screen_mutex_arc: Arc<Mutex<Screen>> = Arc::new(current_screen_mutex);
-    let current_screen_mutex_arc_main_thread = current_screen_mutex_arc.clone();
 
     /* FIXME: #13 the address should be the domain name of the real server,
        only work with a local server for now;
@@ -85,11 +81,13 @@ fn main() {
        for the client to start which is only a temporary solution */
     let stream = TcpStream::connect("127.0.0.1:9500").unwrap();
 
+    let tiles_mutex_arc_receive_message_thread = tiles_mutex_arc.clone();
+    let current_screen_mutex_arc_receive_message_thread = current_screen_mutex_arc.clone();
     spawn(|| {
         receive_message_from_stream(
             stream,
-            tiles_mutex_arc,
-            current_screen_mutex_arc,
+            tiles_mutex_arc_receive_message_thread,
+            current_screen_mutex_arc_receive_message_thread,
         );
     });
 
@@ -100,15 +98,14 @@ fn main() {
 
     let waiting_for_players_screen = WaitingForPlayersScreen::new();
 
-    let tiles_mutex_arc_game_screen = tiles_mutex_arc_main_thread.clone();
     let mut game_screen = GameScreen::new(
         &mut window,
-        tiles_mutex_arc_game_screen,
+        tiles_mutex_arc,
     );
 
     while let Some(event) = window.next() {
 
-        let mut current_screen_mutex_guard = current_screen_mutex_arc_main_thread.lock().unwrap();
+        let mut current_screen_mutex_guard = current_screen_mutex_arc.lock().unwrap();
         let current_screen_guard = &mut *current_screen_mutex_guard;
         let current_screen = *current_screen_guard;
 

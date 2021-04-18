@@ -33,6 +33,7 @@ impl UsernamePromptScreen {
     ///
     /// `context` - the Piston context to use
     /// `window` - the Piston window to use
+    /// `device` - the Piston device to use
     /// `font` - the font to use to render characters
     pub fn render(
         &self,

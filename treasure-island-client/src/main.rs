@@ -8,6 +8,7 @@ mod threads;
 mod screen;
 
 mod username_prompt_screen;
+mod waiting_for_players_screen;
 
 use gui::{
     display_sprites,
@@ -19,6 +20,7 @@ use threads::receive_message_from_stream;
 use screen::Screen;
 
 use username_prompt_screen::UsernamePromptScreen;
+use waiting_for_players_screen::WaitingForPlayersScreen;
 
 use piston_window::{
     PistonWindow,
@@ -29,11 +31,9 @@ use piston_window::{
     Key,
     TextureSettings,
     Glyphs,
-    Transformed,
 };
 
 use piston_window::color::hex;
-use piston_window::text::Text;
 
 use std::time;
 use std::net::TcpStream;
@@ -140,6 +140,7 @@ fn main() {
     let mut event_previous_time = time::Instant::now();
 
     let mut username_prompt_screen = UsernamePromptScreen::new();
+    let waiting_for_players_screen = WaitingForPlayersScreen::new();
 
     while let Some(event) = window.next() {
 
@@ -209,28 +210,12 @@ fn main() {
 
                 if current_screen == Screen::WaitingForPlayers {
 
-                    const WHITE_COLOR: [f32; 4] = [1.0, 1.0, 1.0, 1.0];
-                    const WAITING_FOR_PLAYERS_MESSAGE_FONT_SIZE: u32 = 64;
-                    const WAITING_FOR_PLAYERS_MESSAGE_HORIZONTAL_POSITION: f64 = 635.0;
-                    const WAITING_FOR_PLAYERS_MESSAGE_VERTICAL_POSITION: f64 = 500.0;
-                    const WAITING_FOR_PLAYERS_MESSAGE: &str = "Waiting for players...";
-                    Text::new_color(
-                        WHITE_COLOR,
-                        WAITING_FOR_PLAYERS_MESSAGE_FONT_SIZE,
-                    ).draw(
-                        WAITING_FOR_PLAYERS_MESSAGE,
+                    waiting_for_players_screen.render(
+                        context,
+                        window,
+                        device,
                         &mut font,
-                        &context.draw_state,
-                        context.transform.trans(
-                            WAITING_FOR_PLAYERS_MESSAGE_HORIZONTAL_POSITION,
-                            WAITING_FOR_PLAYERS_MESSAGE_VERTICAL_POSITION,
-                        ),
-                        window
-                    ).unwrap();
-
-                    font.factory
-                        .encoder
-                        .flush(device);
+                    );
 
                     return;
                 }

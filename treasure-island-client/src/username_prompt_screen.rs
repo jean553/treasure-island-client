@@ -1,3 +1,5 @@
+use crate::screen::Screen;
+
 use piston_window::text::Text;
 use piston_window::{
     Glyphs,
@@ -23,7 +25,7 @@ impl UsernamePromptScreen {
 
         const DEFAULT_USERNAME: &str = "";
         UsernamePromptScreen {
-            username: DEFAULT_USERNAME.to_string()
+            username: DEFAULT_USERNAME.to_string(),
         }
     }
 
@@ -92,12 +94,19 @@ impl UsernamePromptScreen {
     /// `event` - the event to handle
     pub fn handle_events(
         &mut self,
-        event: &Event
+        event: &Event,
+        current_screen: &mut Screen,
     ) {
 
         let pressed_key = event.press_args();
 
-        if let Some(Button::Keyboard(Key::A)) = pressed_key {
+        if let Some(Button::Keyboard(Key::Return)) = pressed_key {
+            *current_screen = Screen::WaitingForPlayers;
+        }
+
+        /* handle all letters */
+
+        else if let Some(Button::Keyboard(Key::A)) = pressed_key {
             const CHARACTER: &str = "A";
             self.username.push_str(CHARACTER);
         }

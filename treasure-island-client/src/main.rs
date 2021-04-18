@@ -37,6 +37,9 @@ use std::sync::{
 
 fn main() {
 
+
+    /* load global resources used everywhere (window, fonts) */
+
     const WINDOW_WIDTH: f64 = 1920.0;
     const WINDOW_HEIGHT: f64 = 1080.0;
 
@@ -59,6 +62,10 @@ fn main() {
         TextureSettings::new(),
     ).unwrap();
 
+
+    /* load cross-threads resources with their pointers and mutexes
+       (current screen, map) */
+
     const TILES_AMOUNT: usize = 400;
     let tiles: [u8; TILES_AMOUNT] = [0; TILES_AMOUNT];
 
@@ -67,6 +74,7 @@ fn main() {
     let tiles_mutex_arc_main_thread = tiles_mutex_arc.clone();
 
     let current_screen: Screen = Screen::UsernamePrompt;
+
     let current_screen_mutex: Mutex<Screen> = Mutex::new(current_screen);
     let current_screen_mutex_arc: Arc<Mutex<Screen>> = Arc::new(current_screen_mutex);
     let current_screen_mutex_arc_main_thread = current_screen_mutex_arc.clone();
@@ -85,14 +93,31 @@ fn main() {
         );
     });
 
+
+    /* load all screens and clone their thread-safe shared resources (if any) */
+
     let mut username_prompt_screen = UsernamePromptScreen::new();
+
     let waiting_for_players_screen = WaitingForPlayersScreen::new();
-    let mut game_screen = GameScreen::new(&mut window, tiles_mutex_arc_main_thread);
+
+    let tiles_mutex_arc_game_screen = tiles_mutex_arc_main_thread.clone();
+    let mut game_screen = GameScreen::new(
+        &mut window,
+        tiles_mutex_arc_game_screen,
+    );
 
     while let Some(event) = window.next() {
 
+        let mut current_screen_mutex_guard = current_screen_mutex_arc_main_thread.lock().unwrap();
+        let current_screen_guard = &mut *current_screen_mutex_guard;
+        let current_screen = *current_screen_guard;
+
         if current_screen == Screen::UsernamePrompt {
-            username_prompt_screen.handle_events(&event);
+
+            username_prompt_screen.handle_events(
+                &event,
+                current_screen_guard,
+            );
         }
 
         else if current_screen == Screen::Game {
@@ -105,10 +130,6 @@ fn main() {
 
                 const BACKGROUND_COLOR: &str = "88FFFF"; /* light blue */
                 clear(hex(BACKGROUND_COLOR), window);
-
-                let current_screen_mutex_guard = current_screen_mutex_arc_main_thread.lock().unwrap();
-                let current_screen_guard = &*current_screen_mutex_guard;
-                let current_screen = *current_screen_guard;
 
                 if current_screen == Screen::UsernamePrompt {
 

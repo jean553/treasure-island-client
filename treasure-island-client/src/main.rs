@@ -94,16 +94,30 @@ fn main() {
     });
 
 
-    /* load all the screens */
+    /* load all screens and clone their thread-safe shared resources (if any) */
 
-    let mut username_prompt_screen = UsernamePromptScreen::new(current_screen_mutex_arc_main_thread.clone());
+    let mut username_prompt_screen = UsernamePromptScreen::new();
+
     let waiting_for_players_screen = WaitingForPlayersScreen::new();
-    let mut game_screen = GameScreen::new(&mut window, tiles_mutex_arc_main_thread);
+
+    let tiles_mutex_arc_game_screen = tiles_mutex_arc_main_thread.clone();
+    let mut game_screen = GameScreen::new(
+        &mut window,
+        tiles_mutex_arc_game_screen,
+    );
 
     while let Some(event) = window.next() {
 
+        let mut current_screen_mutex_guard = current_screen_mutex_arc_main_thread.lock().unwrap();
+        let current_screen_guard = &mut *current_screen_mutex_guard;
+        let current_screen = *current_screen_guard;
+
         if current_screen == Screen::UsernamePrompt {
-            username_prompt_screen.handle_events(&event);
+
+            username_prompt_screen.handle_events(
+                &event,
+                current_screen_guard,
+            );
         }
 
         else if current_screen == Screen::Game {
@@ -116,10 +130,6 @@ fn main() {
 
                 const BACKGROUND_COLOR: &str = "88FFFF"; /* light blue */
                 clear(hex(BACKGROUND_COLOR), window);
-
-                let current_screen_mutex_guard = current_screen_mutex_arc_main_thread.lock().unwrap();
-                let current_screen_guard = &*current_screen_mutex_guard;
-                let current_screen = *current_screen_guard;
 
                 if current_screen == Screen::UsernamePrompt {
 

@@ -11,12 +11,6 @@ mod username_prompt_screen;
 mod waiting_for_players_screen;
 mod game_screen;
 
-use gui::{
-    display_sprites,
-    display_characters,
-};
-use sprite::load_sprite_from_file;
-use character::Character;
 use threads::receive_message_from_stream;
 use screen::Screen;
 
@@ -28,16 +22,12 @@ use piston_window::{
     PistonWindow,
     WindowSettings,
     clear,
-    PressEvent,
-    Button,
-    Key,
     TextureSettings,
     Glyphs,
 };
 
 use piston_window::color::hex;
 
-use std::time;
 use std::net::TcpStream;
 use std::thread::spawn;
 use std::sync::{
@@ -69,47 +59,6 @@ fn main() {
         TextureSettings::new(),
     ).unwrap();
 
-    let all_sprites = [
-
-        /* from 0 to 3: sands */
-        load_sprite_from_file(&mut window, "sand_1.png"),
-        load_sprite_from_file(&mut window, "sand_2.png"),
-        load_sprite_from_file(&mut window, "sand_3.png"),
-        load_sprite_from_file(&mut window, "sand_4.png"),
-
-        /* from 4 to 7: sands and water links */
-        load_sprite_from_file(&mut window, "sand_water_1.png"),
-        load_sprite_from_file(&mut window, "sand_water_2.png"),
-        load_sprite_from_file(&mut window, "sand_water_3.png"),
-        load_sprite_from_file(&mut window, "sand_water_4.png"),
-
-        /* at 8: palm tree */
-        load_sprite_from_file(&mut window, "palm_1.png"),
-
-        /* at 9: chest */
-        load_sprite_from_file(&mut window, "chest_1.png"),
-
-        /* at 10: water */
-        load_sprite_from_file(&mut window, "water_1.png"),
-    ];
-
-    const CHARACTERS_AMOUNT: usize = 2;
-
-    /* FIXME: we use fixed default positions for our characters for now;
-       that information should come from the server */
-    const FIRST_CHARACTER_DEFAULT_POSITION: usize = 38;
-    const SECOND_CHARACTER_DEFAULT_POSITION: usize = 361;
-    let all_characters: [Character; CHARACTERS_AMOUNT] = [
-        Character::new(
-            load_sprite_from_file(&mut window, "character_1.png"),
-            FIRST_CHARACTER_DEFAULT_POSITION
-        ),
-        Character::new(
-            load_sprite_from_file(&mut window, "character_2.png"),
-            SECOND_CHARACTER_DEFAULT_POSITION
-        ),
-    ];
-
     const TILES_AMOUNT: usize = 400;
     let tiles: [u8; TILES_AMOUNT] = [0; TILES_AMOUNT];
 
@@ -136,14 +85,9 @@ fn main() {
         );
     });
 
-    let mut origin_horizontal_position: f64 = 0.0;
-    let mut origin_vertical_position: f64 = 0.0;
-
-    let mut event_previous_time = time::Instant::now();
-
     let mut username_prompt_screen = UsernamePromptScreen::new();
     let waiting_for_players_screen = WaitingForPlayersScreen::new();
-    let game_screen = GameScreen::new();
+    let mut game_screen = GameScreen::new(&mut window, tiles_mutex_arc_main_thread);
 
     while let Some(event) = window.next() {
 
@@ -152,40 +96,7 @@ fn main() {
         }
 
         else if current_screen == Screen::Game {
-
-            let pressed_key = event.press_args();
-
-            const CAMERA_MOVEMENT_OFFSET: f64 = 10.0;
-            const CAMERA_MOVEMENT_INTERVAL: u128 = 25;
-
-            if let Some(Button::Keyboard(Key::Up)) = pressed_key {
-                if time::Instant::now().duration_since(event_previous_time).as_millis() >
-                    CAMERA_MOVEMENT_INTERVAL {
-                        origin_vertical_position += CAMERA_MOVEMENT_OFFSET;
-                        event_previous_time = time::Instant::now();
-                    }
-            }
-            else if let Some(Button::Keyboard(Key::Down)) = pressed_key {
-                if time::Instant::now().duration_since(event_previous_time).as_millis() >
-                    CAMERA_MOVEMENT_INTERVAL {
-                        origin_vertical_position -= CAMERA_MOVEMENT_OFFSET;
-                        event_previous_time = time::Instant::now();
-                    }
-            }
-            else if let Some(Button::Keyboard(Key::Left)) = pressed_key {
-                if time::Instant::now().duration_since(event_previous_time).as_millis() >
-                    CAMERA_MOVEMENT_INTERVAL {
-                        origin_horizontal_position += CAMERA_MOVEMENT_OFFSET;
-                        event_previous_time = time::Instant::now();
-                    }
-            }
-            else if let Some(Button::Keyboard(Key::Right)) = pressed_key {
-                if time::Instant::now().duration_since(event_previous_time).as_millis() >
-                    CAMERA_MOVEMENT_INTERVAL {
-                        origin_horizontal_position -= CAMERA_MOVEMENT_OFFSET;
-                        event_previous_time = time::Instant::now();
-                    }
-            }
+            game_screen.handle_events(&event);
         }
 
         window.draw_2d(
@@ -223,24 +134,9 @@ fn main() {
                     return;
                 }
 
-                let tiles_mutex_guard = tiles_mutex_arc_main_thread.lock().unwrap();
-                let tiles = &*tiles_mutex_guard;
-
-                display_sprites(
+                game_screen.render(
+                    context,
                     window,
-                    &context.transform,
-                    &all_sprites,
-                    &tiles,
-                    origin_horizontal_position,
-                    origin_vertical_position,
-                );
-
-                display_characters(
-                    window,
-                    &context.transform,
-                    &all_characters,
-                    origin_horizontal_position,
-                    origin_vertical_position,
                 );
             }
         );

@@ -86,6 +86,10 @@ impl UsernamePromptScreen {
     }
 
     /// Handle the events of the screen.
+    ///
+    /// # Args:
+    ///
+    /// `event` - the event to handle
     pub fn handle_events(
         &mut self,
         event: &Event

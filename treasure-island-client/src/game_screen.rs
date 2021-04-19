@@ -1,3 +1,5 @@
+//! Handles the main game screen.
+
 use crate::gui::{
     display_sprites,
     display_characters,
@@ -39,13 +41,16 @@ pub struct GameScreen {
 
 impl GameScreen {
 
-    /// Constructor.
+    /// Constructor. Loads the sprites and the characters.
     ///
     /// # Args:
     ///
-    /// `window` - the Piston window to use
-    /// `tiles` - thread safe pointer to the tiles (shared with the thread that receives updated tiles map from the server)
-    pub fn new(window: &mut PistonWindow, tiles: Tiles) -> GameScreen {
+    /// `window` - the Piston window to use; expected to be mutable to load all the sprites
+    /// `tiles` - thread safe pointer to the tiles; shared with the thread that receives updated tiles map from the server
+    pub fn new(
+        window: &mut PistonWindow,
+        tiles: Tiles,
+    ) -> GameScreen {
 
         let sprites = [
 
@@ -101,7 +106,7 @@ impl GameScreen {
     /// # Args:
     ///
     /// `context` - the Piston context to use
-    /// `window` - the Piston window to use
+    /// `window` - the Piston window to use expected to be mutable to display stuffs on screen
     pub fn render(
         &self,
         context: Context,
@@ -128,7 +133,7 @@ impl GameScreen {
         );
     }
 
-    /// Handle the events of the screen.
+    /// Handle the events of the screen. Mutable as it modifies the camera position.
     ///
     /// # Args:
     ///

@@ -18,7 +18,7 @@ impl WaitingForPlayersScreen {
         WaitingForPlayersScreen {}
     }
 
-    /// Renders the screen.
+    /// Displays the screen.
     ///
     /// # Args:
     ///
@@ -26,7 +26,7 @@ impl WaitingForPlayersScreen {
     /// `window` - the Piston window to use
     /// `device` - the Piston device to use
     /// `font` - the font to use to render characters
-    pub fn render(
+    pub fn display(
         &self,
         context: Context,
         window: &mut G2d,

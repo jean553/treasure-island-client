@@ -96,13 +96,13 @@ impl GameScreen {
         }
     }
 
-    /// Renders the screen.
+    /// Displays the screen.
     ///
     /// # Args:
     ///
     /// `context` - the Piston context to use
     /// `window` - the Piston window to use
-    pub fn render(
+    pub fn display(
         &self,
         context: Context,
         window: &mut G2d,

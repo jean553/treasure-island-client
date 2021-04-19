@@ -130,7 +130,7 @@ fn main() {
 
                 if current_screen == Screen::UsernamePrompt {
 
-                    username_prompt_screen.render(
+                    username_prompt_screen.display(
                         context,
                         window,
                         device,
@@ -142,7 +142,7 @@ fn main() {
 
                 if current_screen == Screen::WaitingForPlayers {
 
-                    waiting_for_players_screen.render(
+                    waiting_for_players_screen.display(
                         context,
                         window,
                         device,
@@ -152,7 +152,7 @@ fn main() {
                     return;
                 }
 
-                game_screen.render(
+                game_screen.display(
                     context,
                     window,
                 );

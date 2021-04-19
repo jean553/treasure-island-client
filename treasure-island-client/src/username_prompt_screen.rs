@@ -1,3 +1,5 @@
+//! Handles the username prompt screen.
+
 use crate::screen::Screen;
 
 use piston_window::text::Text;
@@ -20,7 +22,6 @@ pub struct UsernamePromptScreen {
 
 impl UsernamePromptScreen {
 
-    /// Constructor.
     pub fn new() -> UsernamePromptScreen {
 
         const DEFAULT_USERNAME: &str = "";
@@ -34,9 +35,9 @@ impl UsernamePromptScreen {
     /// # Args:
     ///
     /// `context` - the Piston context to use
-    /// `window` - the Piston window to use
-    /// `device` - the Piston device to use
-    /// `font` - the font to use to render characters
+    /// `window` - the Piston window to use expected to be mutable to display stuffs on screen
+    /// `device` - the Piston device to use; expected to be mutable to display stuffs on screen
+    /// `font` - the font to use to render characters; expected to be mutable to render text
     pub fn render(
         &self,
         context: Context,
@@ -87,11 +88,12 @@ impl UsernamePromptScreen {
             .flush(device);
     }
 
-    /// Handle the events of the screen.
+    /// Handle the events of the screen. Mutable as it modifies the player username.
     ///
     /// # Args:
     ///
     /// `event` - the event to handle
+    /// `current_screen` - reference to the current screen; expected to be mutable to be changed when the user validates his username
     pub fn handle_events(
         &mut self,
         event: &Event,

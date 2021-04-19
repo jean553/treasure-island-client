@@ -1,3 +1,5 @@
+//! Handles the screen that indicates the game is waiting for players.
+
 use piston_window::text::Text;
 use piston_window::{
     Glyphs,
@@ -9,11 +11,12 @@ use piston_window::{
 use gfx_device_gl::Device;
 
 pub struct WaitingForPlayersScreen {
+
+    /* there is nothing to store into the screen*/
 }
 
 impl WaitingForPlayersScreen {
 
-    /// Constructor.
     pub fn new() -> WaitingForPlayersScreen {
         WaitingForPlayersScreen {}
     }
@@ -23,9 +26,9 @@ impl WaitingForPlayersScreen {
     /// # Args:
     ///
     /// `context` - the Piston context to use
-    /// `window` - the Piston window to use
-    /// `device` - the Piston device to use
-    /// `font` - the font to use to render characters
+    /// `window` - the Piston window to use expected to be mutable to display stuffs on screen
+    /// `device` - the Piston device to use; expected to be mutable to display stuffs on screen
+    /// `font` - the font to use to render characters; expected to be mutable to render text
     pub fn render(
         &self,
         context: Context,

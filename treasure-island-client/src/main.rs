@@ -109,17 +109,18 @@ fn main() {
         let current_screen_guard = &mut *current_screen_mutex_guard;
         let current_screen = *current_screen_guard;
 
-        if current_screen == Screen::UsernamePrompt {
-
-            username_prompt_screen.handle_events(
-                &event,
-                current_screen_guard,
-            );
-        }
-
-        else if current_screen == Screen::Game {
-            game_screen.handle_events(&event);
-        }
+        match current_screen {
+            Screen::UsernamePrompt => {
+                username_prompt_screen.handle_events(
+                    &event,
+                    current_screen_guard,
+                );
+            },
+            Screen::Game => {
+                game_screen.handle_events(&event);
+            },
+            _ => {}
+        };
 
         window.draw_2d(
             &event,
@@ -128,34 +129,30 @@ fn main() {
                 const BACKGROUND_COLOR: &str = "88FFFF"; /* light blue */
                 clear(hex(BACKGROUND_COLOR), window);
 
-                if current_screen == Screen::UsernamePrompt {
-
-                    username_prompt_screen.render(
-                        context,
-                        window,
-                        device,
-                        &mut font,
-                    );
-
-                    return;
-                }
-
-                if current_screen == Screen::WaitingForPlayers {
-
-                    waiting_for_players_screen.render(
-                        context,
-                        window,
-                        device,
-                        &mut font,
-                    );
-
-                    return;
-                }
-
-                game_screen.render(
-                    context,
-                    window,
-                );
+                match current_screen {
+                    Screen::UsernamePrompt => {
+                        username_prompt_screen.render(
+                            context,
+                            window,
+                            device,
+                            &mut font,
+                        );
+                    },
+                    Screen::WaitingForPlayers => {
+                        waiting_for_players_screen.render(
+                            context,
+                            window,
+                            device,
+                            &mut font,
+                        );
+                    },
+                    Screen::Game => {
+                        game_screen.render(
+                            context,
+                            window,
+                        );
+                    }
+                };
             }
         );
     }

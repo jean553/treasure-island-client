@@ -34,6 +34,10 @@ use std::sync::{
     Mutex,
     Arc,
 };
+use std::io::{
+    BufReader,
+    LineWriter,
+};
 
 fn main() {
 
@@ -79,13 +83,17 @@ fn main() {
        only work with a local server for now;
        this part should be improved as the server has to be up
        for the client to start which is only a temporary solution */
-    let stream = TcpStream::connect("127.0.0.1:9500").unwrap();
+    let read_stream = TcpStream::connect("127.0.0.1:9500").unwrap();
+    let write_stream = read_stream.try_clone().unwrap();
+
+    let read_buffer = BufReader::new(read_stream);
+    let _line_writer = LineWriter::new(write_stream);
 
     let tiles_mutex_arc_receive_message_thread = tiles_mutex_arc.clone();
     let current_screen_mutex_arc_receive_message_thread = current_screen_mutex_arc.clone();
     spawn(|| {
         receive_message_from_stream(
-            stream,
+            read_buffer,
             tiles_mutex_arc_receive_message_thread,
             current_screen_mutex_arc_receive_message_thread,
         );

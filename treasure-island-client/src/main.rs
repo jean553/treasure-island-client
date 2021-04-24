@@ -1,11 +1,13 @@
 extern crate piston_window;
 extern crate gfx_device_gl;
+extern crate serde_derive;
 
 mod gui;
 mod sprite;
 mod character;
 mod threads;
 mod screen;
+mod message;
 
 mod username_prompt_screen;
 mod waiting_for_players_screen;
@@ -13,6 +15,7 @@ mod game_screen;
 
 use threads::receive_message_from_stream;
 use screen::Screen;
+use message::Message;
 
 use username_prompt_screen::UsernamePromptScreen;
 use waiting_for_players_screen::WaitingForPlayersScreen;
@@ -36,7 +39,7 @@ use std::sync::{
 };
 use std::io::{
     BufReader,
-    LineWriter,
+    Write,
 };
 
 fn main() {
@@ -84,10 +87,17 @@ fn main() {
        this part should be improved as the server has to be up
        for the client to start which is only a temporary solution */
     let read_stream = TcpStream::connect("127.0.0.1:9500").unwrap();
-    let write_stream = read_stream.try_clone().unwrap();
+    let mut write_stream = read_stream.try_clone().unwrap();
 
     let read_buffer = BufReader::new(read_stream);
-    let _line_writer = LineWriter::new(write_stream);
+
+    /* FIXME: attempt to send a single message to the server;
+       should be use to send the player name once given by the user;
+       we set message type to 1 only for tests */
+    let mut message = Message::new(1);
+    message.set_data([0; 32]);
+    let data: Vec<u8> = bincode::serialize(&message).unwrap();
+    write_stream.write(&data).unwrap();
 
     let tiles_mutex_arc_receive_message_thread = tiles_mutex_arc.clone();
     let current_screen_mutex_arc_receive_message_thread = current_screen_mutex_arc.clone();

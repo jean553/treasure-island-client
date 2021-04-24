@@ -9,3 +9,6 @@ edition = "2018"
 [dependencies]
 piston_window = "*"
 gfx_device_gl = "*"
+serde_derive = "*"
+serde = "*"
+bincode = "*"

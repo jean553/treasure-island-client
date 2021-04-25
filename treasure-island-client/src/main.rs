@@ -93,9 +93,19 @@ fn main() {
 
     /* FIXME: attempt to send a single message to the server;
        should be use to send the player name once given by the user;
-       we set message type to 1 only for tests */
-    let mut message = Message::new(1);
-    message.set_data([0; 32]);
+       we set message type to 1 only for tests;
+       we create a fake user name for now */
+    const MESSAGE_ACTION_SEND_USERNAME: u8 = 1;
+    let mut message = Message::new(MESSAGE_ACTION_SEND_USERNAME);
+
+    let username = "username".to_string();
+    let username_bytes: &[u8] = username.as_bytes();
+
+    const MESSAGE_DATA_LENGTH: usize = 32;
+    let mut bytes: [u8; MESSAGE_DATA_LENGTH] = [0; MESSAGE_DATA_LENGTH];
+    bytes[..username.len()].copy_from_slice(username_bytes);
+    message.set_data(bytes);
+
     let data: Vec<u8> = bincode::serialize(&message).unwrap();
     write_stream.write(&data).unwrap();
 

@@ -13,9 +13,11 @@ mod username_prompt_screen;
 mod waiting_for_players_screen;
 mod game_screen;
 
-use threads::receive_message_from_stream;
+use threads::{
+    receive_message_from_stream,
+    send_message_to_stream,
+};
 use screen::Screen;
-use message::Message;
 
 use username_prompt_screen::UsernamePromptScreen;
 use waiting_for_players_screen::WaitingForPlayersScreen;
@@ -37,10 +39,7 @@ use std::sync::{
     Mutex,
     Arc,
 };
-use std::io::{
-    BufReader,
-    Write,
-};
+use std::io::BufReader;
 
 fn main() {
 
@@ -87,27 +86,9 @@ fn main() {
        this part should be improved as the server has to be up
        for the client to start which is only a temporary solution */
     let read_stream = TcpStream::connect("127.0.0.1:9500").unwrap();
-    let mut write_stream = read_stream.try_clone().unwrap();
+    let write_stream = read_stream.try_clone().unwrap();
 
     let read_buffer = BufReader::new(read_stream);
-
-    /* FIXME: attempt to send a single message to the server;
-       should be use to send the player name once given by the user;
-       we set message type to 1 only for tests;
-       we create a fake user name for now */
-    const MESSAGE_ACTION_SEND_USERNAME: u8 = 1;
-    let mut message = Message::new(MESSAGE_ACTION_SEND_USERNAME);
-
-    let username = "username".to_string();
-    let username_bytes: &[u8] = username.as_bytes();
-
-    const MESSAGE_DATA_LENGTH: usize = 32;
-    let mut bytes: [u8; MESSAGE_DATA_LENGTH] = [0; MESSAGE_DATA_LENGTH];
-    bytes[..username.len()].copy_from_slice(username_bytes);
-    message.set_data(bytes);
-
-    let data: Vec<u8> = bincode::serialize(&message).unwrap();
-    write_stream.write(&data).unwrap();
 
     let tiles_mutex_arc_receive_message_thread = tiles_mutex_arc.clone();
     let current_screen_mutex_arc_receive_message_thread = current_screen_mutex_arc.clone();
@@ -119,6 +100,9 @@ fn main() {
         );
     });
 
+    spawn(|| {
+        send_message_to_stream(write_stream)
+    });
 
     /* load all screens and clone their thread-safe shared resources (if any) */
 

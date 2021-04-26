@@ -1,14 +1,17 @@
 //! Contains individual threads dedicated codes.
 
 use crate::screen::Screen;
+use crate::message::Message;
 
 use std::sync::{
     Mutex,
     Arc,
 };
+use std::sync::mpsc::Receiver;
 use std::io::{
     BufReader,
     Read,
+    Write,
 };
 use std::net::TcpStream;
 
@@ -61,3 +64,23 @@ pub fn receive_message_from_stream(
     }
 }
 
+/// Contains the whole code of a dedicated thread.
+/// Continuously checks for messages to be sent to the server and sends them.
+///
+/// Args:
+///
+/// `stream` - the stream connected to the server, used to send messages
+/// `receiver` - receives messages sent from sender from the different screens
+pub fn send_message_to_stream(
+    mut stream: TcpStream,
+    receiver: Receiver<Message>,
+) {
+
+    loop {
+
+        let message = receiver.recv().unwrap();
+
+        let data: Vec<u8> = bincode::serialize(&message).unwrap();
+        stream.write(&data).unwrap();
+    }
+}

@@ -7,6 +7,7 @@ use std::sync::{
     Mutex,
     Arc,
 };
+use std::sync::mpsc::Receiver;
 use std::io::{
     BufReader,
     Read,
@@ -63,24 +64,23 @@ pub fn receive_message_from_stream(
     }
 }
 
-/// TODO
-pub fn send_message_to_stream(mut stream: TcpStream) {
+/// Contains the whole code of a dedicated thread.
+/// Continuously checks for messages to be sent to the server and sends them.
+///
+/// Args:
+///
+/// `stream` - the stream connected to the server, used to send messages
+/// `receiver` - receives messages sent from sender from the different screens
+pub fn send_message_to_stream(
+    mut stream: TcpStream,
+    receiver: Receiver<Message>,
+) {
 
-    /* FIXME: attempt to send a single message to the server;
-       should be use to send the player name once given by the user;
-       we set message type to 1 only for tests;
-       we create a fake user name for now */
-    const MESSAGE_ACTION_SEND_USERNAME: u8 = 1;
-    let mut message = Message::new(MESSAGE_ACTION_SEND_USERNAME);
+    loop {
 
-    let username = "username".to_string();
-    let username_bytes: &[u8] = username.as_bytes();
+        let message = receiver.recv().unwrap();
 
-    const MESSAGE_DATA_LENGTH: usize = 32;
-    let mut bytes: [u8; MESSAGE_DATA_LENGTH] = [0; MESSAGE_DATA_LENGTH];
-    bytes[..username.len()].copy_from_slice(username_bytes);
-    message.set_data(bytes);
-
-    let data: Vec<u8> = bincode::serialize(&message).unwrap();
-    stream.write(&data).unwrap();
+        let data: Vec<u8> = bincode::serialize(&message).unwrap();
+        stream.write(&data).unwrap();
+    }
 }

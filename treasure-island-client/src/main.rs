@@ -18,6 +18,7 @@ use threads::{
     send_message_to_stream,
 };
 use screen::Screen;
+use message::Message;
 
 use username_prompt_screen::UsernamePromptScreen;
 use waiting_for_players_screen::WaitingForPlayersScreen;
@@ -38,6 +39,11 @@ use std::thread::spawn;
 use std::sync::{
     Mutex,
     Arc,
+};
+use std::sync::mpsc::{
+    Sender,
+    Receiver,
+    channel,
 };
 use std::io::BufReader;
 
@@ -100,13 +106,24 @@ fn main() {
         );
     });
 
+    let (
+        sender,
+        receiver,
+    ): (
+        Sender<Message>,
+        Receiver<Message>
+    ) = channel();
+
     spawn(|| {
-        send_message_to_stream(write_stream)
+        send_message_to_stream(
+            write_stream,
+            receiver,
+        )
     });
 
     /* load all screens and clone their thread-safe shared resources (if any) */
 
-    let mut username_prompt_screen = UsernamePromptScreen::new();
+    let mut username_prompt_screen = UsernamePromptScreen::new(sender);
 
     let waiting_for_players_screen = WaitingForPlayersScreen::new();
 

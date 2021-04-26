@@ -1,6 +1,7 @@
 //! Handles the username prompt screen.
 
 use crate::screen::Screen;
+use crate::message::Message;
 
 use piston_window::text::Text;
 use piston_window::{
@@ -16,16 +17,20 @@ use piston_window::{
 
 use gfx_device_gl::Device;
 
+use std::sync::mpsc::Sender;
+
 pub struct UsernamePromptScreen {
+    sender: Sender<Message>,
     username: String,
 }
 
 impl UsernamePromptScreen {
 
-    pub fn new() -> UsernamePromptScreen {
+    pub fn new(sender: Sender<Message>) -> UsernamePromptScreen {
 
         const DEFAULT_USERNAME: &str = "";
         UsernamePromptScreen {
+            sender: sender,
             username: DEFAULT_USERNAME.to_string(),
         }
     }
@@ -103,6 +108,18 @@ impl UsernamePromptScreen {
         let pressed_key = event.press_args();
 
         if let Some(Button::Keyboard(Key::Return)) = pressed_key {
+
+            const MESSAGE_ACTION_SEND_USERNAME: u8 = 1;
+            let mut message = Message::new(MESSAGE_ACTION_SEND_USERNAME);
+
+            let username_bytes: &[u8] = self.username.as_bytes();
+
+            const MESSAGE_DATA_LENGTH: usize = 32;
+            let mut bytes: [u8; MESSAGE_DATA_LENGTH] = [0; MESSAGE_DATA_LENGTH];
+            bytes[..self.username.len()].copy_from_slice(username_bytes);
+            message.set_data(bytes);
+            self.sender.send(message).unwrap();
+
             *current_screen = Screen::WaitingForPlayers;
         }
 

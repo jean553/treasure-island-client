@@ -121,11 +121,20 @@ impl UsernamePromptScreen {
             self.sender.send(message).unwrap();
 
             *current_screen = Screen::WaitingForPlayers;
+
+            return;
+        }
+
+        /* check if username is not too long before handling letters inputs */
+
+        const USERNAME_MAX_LENGTH: usize = 10;
+        if self.username.len() == USERNAME_MAX_LENGTH {
+            return;
         }
 
         /* handle all letters */
 
-        else if let Some(Button::Keyboard(Key::A)) = pressed_key {
+        if let Some(Button::Keyboard(Key::A)) = pressed_key {
             const CHARACTER: &str = "A";
             self.username.push_str(CHARACTER);
         }

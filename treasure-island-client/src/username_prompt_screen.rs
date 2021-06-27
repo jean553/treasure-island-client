@@ -109,6 +109,15 @@ impl UsernamePromptScreen {
 
         if let Some(Button::Keyboard(Key::Return)) = pressed_key {
 
+            /* forbid empty name validation
+               NOTE: after pressing the Enter key to start the program,
+               it seems the Enter key is still considered as pressed
+               when rendering the first screen, so this condition
+               prevent switching directly to the next screen */
+            if self.username.len() == 0 {
+                return;
+            }
+
             const MESSAGE_ACTION_SEND_USERNAME: u8 = 1;
             let mut message = Message::new(MESSAGE_ACTION_SEND_USERNAME);
 
